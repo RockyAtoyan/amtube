@@ -1,0 +1,9 @@
+model History {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  videoId   String
+}
