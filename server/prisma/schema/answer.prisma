@@ -1,0 +1,14 @@
+model Answer {
+  id        String   @id @default(cuid())
+  text      String
+  likes     User[]   @relation(name: "likedAnswers")
+  dislikes  User[]   @relation(name: "dislikedAnswers")
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  to        User     @relation(fields: [toId], references: [id], name: "reciever")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  commentId String
+  userId    String
+  toId      String
+}
