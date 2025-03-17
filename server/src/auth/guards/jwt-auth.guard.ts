@@ -1,5 +1,10 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { JsonWebTokenError } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
 
@@ -18,5 +23,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
     return super.canActivate(context);
+  }
+
+  handleRequest(err: any, user: any, info: any, context: any, status: any) {
+    if (!user || info instanceof JsonWebTokenError) {
+      throw new UnauthorizedException('Invalid Token!');
+    }
+
+    return super.handleRequest(err, user, info, context, status);
   }
 }

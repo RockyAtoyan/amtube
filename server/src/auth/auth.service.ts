@@ -1,13 +1,14 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import { MailService } from 'src/mail/mail.service';
 import { DbService } from './../db/db.service';
-import { FileService } from './../file/file.service';
 import { UsersService } from './../users/users.service';
 import { JwtPayload } from './auth.types';
 import { SignInDto } from './dto/sign-in.dto';
@@ -24,20 +25,29 @@ export class AuthService {
   constructor(
     private dbService: DbService,
     private usersService: UsersService,
-    private fileService: FileService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async signUp(dto: SignUpDto) {
     const userWithSameEmail = await this.usersService.findByEmail(dto.email);
     const userWithSameName = await this.usersService.findByName(dto.name);
-    if (userWithSameEmail || userWithSameName)
-      throw new BadRequestException('User already exists!');
+    if (userWithSameEmail)
+      throw new BadRequestException('User with this email already exists!');
+    if (userWithSameName)
+      throw new BadRequestException('User with this name already exists!');
     const password = bcrypt.hashSync(dto.password, 7);
     const newUser = await this.usersService.create({
       ...dto,
       password,
     });
+    const activationToken = this.generateActivationToken(newUser.id);
+    if (activationToken) {
+      await this.mailService.sendActivationEmail(
+        newUser.email,
+        activationToken,
+      );
+    }
     return newUser;
   }
 
@@ -89,6 +99,55 @@ export class AuthService {
 
   removeTokenFromResponse(res: Response) {
     res.clearCookie(this.REFRESH_TOKEN_COOKIE_NAME);
+  }
+
+  async sendActivateEmail(userId: string) {
+    try {
+      const user = await this.usersService.findById(userId);
+      if (!user) throw new NotFoundException();
+      const activationToken = this.generateActivationToken(user.id);
+      if (!activationToken) throw new BadRequestException();
+      await this.mailService.sendActivationEmail(user.email, activationToken);
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  }
+
+  async activateAccount(token: string) {
+    const payload = this.verifyActivationToken(token);
+    if (!payload) {
+      return {
+        success: false,
+        message: 'Link is expired, try again from settings!',
+      };
+    }
+
+    const { isActivated } = await this.usersService.activateUser(
+      payload.userId,
+    );
+    return {
+      success: !!isActivated,
+      message: !isActivated
+        ? 'Something happened, try again from settings!'
+        : '',
+    };
+  }
+
+  generateActivationToken(userId: string) {
+    try {
+      return this.jwtService.sign({ userId }, { expiresIn: '1h' });
+    } catch (err) {
+      return null;
+    }
+  }
+
+  verifyActivationToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (err) {
+      return null;
+    }
   }
 
   private generateTokens(payload: JwtPayload) {
