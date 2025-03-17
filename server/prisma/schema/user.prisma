@@ -4,6 +4,8 @@ model User {
   name             String         @unique
   password         String
   avatarUrl        String?
+  isActivated      Boolean        @default(false)
+  isBanned         Boolean        @default(false)
   role             Role           @default(USER)
   channel          Channel?
   likedVideos      Video[]        @relation(name: "likedVideo")

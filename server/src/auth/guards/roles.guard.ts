@@ -24,7 +24,7 @@ export class RolesGuard implements CanActivate {
   }
 
   private matchRoles(userRole: string | undefined, roles: string[]) {
-    if (roles.length === 0) return true;
+    if (!roles || roles?.length === 0) return true;
     return roles.some((role) => role === userRole);
   }
 }
