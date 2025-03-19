@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
-import { FileModule } from './file/file.module';
-import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
+import { MediaModule } from './media/media.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -19,8 +18,8 @@ import { MailModule } from './mail/mail.module';
     DbModule,
     UsersModule,
     AuthModule,
-    FileModule,
     MailModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
