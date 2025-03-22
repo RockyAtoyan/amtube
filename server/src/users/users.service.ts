@@ -105,7 +105,7 @@ export class UsersService {
     }
   }
 
-  async delete(id: string) {
+  async remove(id: string) {
     try {
       const user = await this.dbService.user.delete({ where: { id } });
       return user;
