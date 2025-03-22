@@ -8,16 +8,20 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ChannelsService } from './channels.service';
 import { ChannelFilter, ChannelFilterEnum } from './channels.types';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
+import { Request } from 'express'
 
 @Controller('channels')
 export class ChannelsController {
   constructor(private readonly channelsService: ChannelsService) {}
 
+  @Auth({ mustHaveAccess: true })
   @Post()
   create(@Body() createChannelDto: CreateChannelDto) {
     return this.channelsService.create(createChannelDto);
@@ -47,13 +51,14 @@ export class ChannelsController {
     return this.channelsService.findBySlug(slug);
   }
 
+  @Auth({ mustHaveAccess: true })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateChannelDto: UpdateChannelDto) {
     return this.channelsService.update(id, updateChannelDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.channelsService.remove(id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    return this.channelsService.remove(id, req);
   }
 }

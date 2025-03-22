@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Request } from 'express';
 import { DbService } from './../db/db.service';
 import { ChannelFilter, ChannelFilterEnum } from './channels.types';
 import { CreateChannelDto } from './dto/create-channel.dto';
@@ -91,10 +92,13 @@ export class ChannelsService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, req: Request) {
+    //@ts-ignore
+    const userId = req?.user?.sub;
+    if (!userId) throw new BadRequestException();
     try {
       const channel = await this.dbService.channel.delete({
-        where: { id },
+        where: { userId },
       });
       return channel;
     } catch (error) {
