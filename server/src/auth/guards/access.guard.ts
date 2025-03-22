@@ -13,8 +13,9 @@ export class AccessGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const queryParams = request.query;
+    const body = request?.body;
     const user = request?.user;
-    const userId = queryParams.userId;
+    const userId = queryParams.userId ? queryParams.userId : body?.userId;
     if (!user) throw new UnauthorizedException('You do not have access!');
     if (userId !== user.sub)
       throw new UnauthorizedException('You do not have access!');

@@ -8,6 +8,7 @@ import { DbModule } from './db/db.module';
 import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
 import { UsersModule } from './users/users.module';
+import { ChannelsModule } from './channels/channels.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     MailModule,
     MediaModule,
+    ChannelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
