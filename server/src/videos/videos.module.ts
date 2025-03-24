@@ -4,10 +4,11 @@ import { bullQueues } from 'src/configs/bullmq.config';
 import { VideosController } from './videos.controller';
 import { VideosService } from './videos.service';
 import { VideosWorker } from './videos.worker';
+import { VideosSseService } from './videos.sse'
 
 @Module({
   imports: [BullModule.registerQueue(bullQueues.video)],
   controllers: [VideosController],
-  providers: [VideosService, VideosWorker],
+  providers: [VideosService, VideosWorker, VideosSseService],
 })
 export class VideosModule {}

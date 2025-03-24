@@ -1,4 +1,5 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
+import { BadRequestException } from '@nestjs/common';
 import { Job } from 'bullmq';
 import ffmpegStatic from 'ffmpeg-static';
 import * as ffmpeg from 'fluent-ffmpeg';
@@ -8,19 +9,24 @@ import { join } from 'path';
 import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
 import { Readable } from 'stream';
 import { DbService } from './../db/db.service';
+import { RENDITIONS } from './videos.constants';
+import { VideosSseEvents, VideosSseService } from './videos.sse';
 import { ProcessVideoJobPayload } from './videos.types';
 
 ffmpegStatic && ffmpeg.setFfmpegPath(ffmpegStatic);
 
 @Processor(VIDEO_QUEUE_NAME, { concurrency: 1 })
 export class VideosWorker extends WorkerHost {
-  constructor(private dbService: DbService) {
+  constructor(
+    private dbService: DbService,
+    private videosSseService: VideosSseService,
+  ) {
     super();
   }
 
   async process(job: Job<ProcessVideoJobPayload>) {
     const fileBuffer = job.data.videoFile.buffer;
-    const { videoId, videoFileName: fileName } = job.data;
+    const { videoId, userId, videoFileName: fileName } = job.data;
     const outputDir = join(
       __dirname,
       '..',
@@ -28,6 +34,8 @@ export class VideosWorker extends WorkerHost {
       'uploads/videos',
       `${fileName}`,
     );
+    if (!userId) throw new BadRequestException();
+
     const relativeOutputDir = join('uploads/videos', `${fileName}`);
     const outputPath = join(outputDir, 'playlist.m3u8');
 
@@ -37,73 +45,20 @@ export class VideosWorker extends WorkerHost {
       const originalResolution =
         await this.getVideoResolutionFromBuffer(fileBuffer);
 
-      const renditions = [
-        {
-          quality: '2160p',
-          resolution: [3840, 2160],
-          videoBitrate: '5000k',
-          audioBitrate: '192k',
-        },
-        {
-          quality: '1440p',
-          resolution: [2560, 1440],
-          videoBitrate: '3000k',
-          audioBitrate: '192k',
-        },
-        {
-          quality: '1080p',
-          resolution: [1920, 1080],
-          videoBitrate: '2000k',
-          audioBitrate: '128k',
-        },
-        {
-          quality: '720p',
-          resolution: [1280, 720],
-          videoBitrate: '1000k',
-          audioBitrate: '128k',
-        },
-        {
-          quality: '480p',
-          resolution: [854, 480],
-          videoBitrate: '800k',
-          audioBitrate: '96k',
-        },
-        {
-          quality: '360p',
-          resolution: [640, 360],
-          videoBitrate: '500k',
-          audioBitrate: '96k',
-        },
-        {
-          quality: '240p',
-          resolution: [426, 240],
-          videoBitrate: '300k',
-          audioBitrate: '64k',
-        },
-        {
-          quality: '144p',
-          resolution: [256, 144],
-          videoBitrate: '200k',
-          audioBitrate: '48k',
-        },
-      ];
-
-      const validRenditions = renditions.filter(
+      const validRenditions = RENDITIONS.filter(
         (rendition) =>
-          rendition.resolution[0] <= originalResolution.width &&
+          rendition.resolution[0] <= originalResolution.width ||
           rendition.resolution[1] <= originalResolution.height,
       );
-
-      // Добавляем оригинальное разрешение, если оно не соответствует ни одному из предопределенных качеств
       if (
         validRenditions.length === 0 ||
         !validRenditions.some(
           (rendition) =>
-            rendition.resolution[0] === originalResolution.width &&
+            rendition.resolution[0] === originalResolution.width ||
             rendition.resolution[1] === originalResolution.height,
         )
       ) {
-        validRenditions.push({
+        validRenditions.unshift({
           quality: 'original',
           resolution: [originalResolution.width, originalResolution.height],
           videoBitrate: '5000k',
@@ -122,15 +77,14 @@ export class VideosWorker extends WorkerHost {
             '-hls_time 10',
             '-hls_list_size 0',
             '-hls_segment_type mpegts',
-            '-hls_segment_filename',
-            join(outputDir, 'segment_%03d.ts'),
+            // '-hls_segment_filename',
+            // join(outputDir, 'segment_%03d.ts'),
             '-master_pl_name playlist.m3u8',
           ])
-          .output(outputPath)
+          // .output(outputPath)
           .videoCodec('libx264')
           .audioCodec('aac');
 
-        // Добавляем выходы для каждого качества, включая оригинальное разрешение
         validRenditions.forEach((rendition) => {
           const playlistName = `segment_${rendition.quality}.m3u8`;
           command
@@ -142,18 +96,41 @@ export class VideosWorker extends WorkerHost {
             command.audioBitrate(rendition.audioBitrate);
         });
 
+        let totalDuration = 0;
+
         command
+          .on('codecData', (data) => {
+            const [hours, mins, secs] = data.duration
+              .split(':')
+              .map(parseFloat);
+            totalDuration = hours * 3600 + mins * 60 + secs;
+          })
           .on('progress', (progress) => {
-            console.log('Progress ', progress);
-            progress.percent && job.updateProgress(progress.percent);
+            let percent = 0;
+
+            if (progress.timemark && totalDuration > 0) {
+              const [hours, mins, secs] = progress.timemark
+                .split(':')
+                .map(parseFloat);
+              const currentTime = hours * 3600 + mins * 60 + secs;
+              percent = (currentTime / totalDuration) * 100;
+            } else if (progress?.percent) {
+              percent = progress.percent;
+            }
+            if (!percent) return;
+            this.videosSseService.sendToClient(
+              userId,
+              { videoId, progress: percent },
+              VideosSseEvents.PROGRESS,
+            );
+            job.updateProgress(percent);
           })
           .on('end', async () => {
-            // Генерация мастер-плейлиста вручную
             const masterPlaylistContent = validRenditions
               .map((rendition) => {
                 const bandwidth = rendition.videoBitrate
                   ? parseInt(rendition.videoBitrate) * 1000
-                  : 5000000; // По умолчанию 5000kbps, если битрейт не указан
+                  : 5000000;
                 return `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},RESOLUTION=${rendition.resolution[0]}x${rendition.resolution[1]}\nsegment_${rendition.quality}.m3u8`;
               })
               .join('\n');
@@ -167,7 +144,20 @@ export class VideosWorker extends WorkerHost {
 
             await this.dbService.video.update({
               where: { id: videoId },
-              data: { videoSrc: masterPlaylistPath },
+              data: {
+                videoSrc: masterPlaylistPath,
+                resolutions: {
+                  connectOrCreate: validRenditions
+                    .filter((rendition) => rendition.quality !== 'original')
+                    .map((rendition) => ({
+                      where: { quality: rendition.quality },
+                      create: {
+                        quality: rendition.quality,
+                        resolution: rendition.resolution,
+                      },
+                    })),
+                },
+              },
             });
 
             resolve({
@@ -191,16 +181,27 @@ export class VideosWorker extends WorkerHost {
   }
 
   @OnWorkerEvent('active')
-  onActive(job: Job) {
-    console.log(
-      `Processing job ${job.id} of type ${job.name} with data ${job.data}...`,
+  onActive(job: Job) {}
+
+  @OnWorkerEvent('completed')
+  onComplete(job: Job) {
+    const { userId, videoId } = job.data;
+    this.videosSseService.sendToClient(
+      userId,
+      { videoId, success: true },
+      VideosSseEvents.PROGRESS,
     );
   }
 
   @OnWorkerEvent('failed')
   async onFailed(job: Job, error: Error) {
-    const { videoId, videoFileName: fileName } = job.data;
+    const { userId, videoId, videoFileName: fileName } = job.data;
     if (!fileName || !videoId) return;
+    this.videosSseService.sendToClient(
+      userId,
+      { videoId, error: true },
+      VideosSseEvents.ERROR,
+    );
     const outputDir = join(
       __dirname,
       '..',
@@ -232,7 +233,7 @@ export class VideosWorker extends WorkerHost {
           if (videoStream && videoStream.width && videoStream.height) {
             resolve({ width: videoStream.width, height: videoStream.height });
           } else {
-            reject(new Error('Видео поток не найден'));
+            reject(new Error('Video stream not found!'));
           }
         }
       });

@@ -17,8 +17,4 @@ export class CreateVideoDto {
   @ApiProperty()
   @IsNotEmpty()
   channelId: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  userId: string;
 }

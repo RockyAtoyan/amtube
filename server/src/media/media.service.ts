@@ -36,7 +36,6 @@ export class MediaService {
         });
       });
     } catch (error) {
-      console.log(error);
       throw new BadRequestException();
     }
   }

@@ -15,16 +15,16 @@ export class VideosService {
     private dbService: DbService,
   ) {}
 
-  async processVideoFile(file: Express.Multer.File, dto: CreateVideoDto) {
+  async processVideoFile(file: Express.Multer.File, dto: CreateVideoDto, userId: string) {
     try {
-      const { userId, ...createDto } = dto;
       const video = await this.dbService.video.create({
-        data: { ...createDto, publicId: createId(), videoSrc: '' },
+        data: { ...dto, publicId: createId(), videoSrc: '' },
       });
       const jobPayload: ProcessVideoJobPayload = {
         videoFileName: video.publicId,
         videoFile: file,
         videoId: video.id,
+        userId
       };
       const job = await this.videoQueue.add('process-video', jobPayload);
 
