@@ -1,17 +1,18 @@
 model Video {
-  id           String     @id @default(cuid())
-  publicId     String     @unique
+  id           String       @id @default(cuid())
+  publicId     String       @unique
   title        String
   description  String
   thumbnailUrl String?
   videoSrc     String
-  channel      Channel    @relation(fields: [channelId], references: [id])
+  channel      Channel      @relation(fields: [channelId], references: [id])
   playlists    Playlist[]
   views        History[]
-  likes        User[]     @relation(name: "likedVideo")
-  dislikes     User[]     @relation(name: "dislikedVideo")
+  likes        User[]       @relation(name: "likedVideo")
+  dislikes     User[]       @relation(name: "dislikedVideo")
   comments     Comment[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  resolutions  Resolution[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   channelId    String
 }
