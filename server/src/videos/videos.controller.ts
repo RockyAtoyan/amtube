@@ -68,11 +68,13 @@ export class VideosController {
     return this.videosService.findOne(+id);
   }
 
+  @Auth()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVideoDto: UpdateVideoDto) {
     return this.videosService.update(+id, updateVideoDto);
   }
 
+  @Auth()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.videosService.remove(+id);
