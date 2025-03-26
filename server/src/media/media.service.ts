@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { existsSync, writeFile } from 'fs';
+import { existsSync, rmSync, writeFile } from 'fs';
 import { join } from 'path';
 
 @Injectable()
@@ -33,7 +33,14 @@ export class MediaService {
         });
       });
     } catch (error) {
+      await this.deleteFile(uploadPath);
       throw new BadRequestException();
     }
+  }
+
+  private async deleteFile(uploadPath: string) {
+    try {
+      rmSync(uploadPath, { force: true });
+    } catch (error) {}
   }
 }
