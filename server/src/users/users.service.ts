@@ -86,10 +86,19 @@ export class UsersService {
 
   async addVideoToHistory(videoId: string, userId: string) {
     try {
-      const history = await this.dbService.history.create({
-        data: { videoId, userId },
+      const history = await this.dbService.history.findFirst({
+        where: { videoId, userId },
       });
-      return history;
+      if (history) {
+        return await this.dbService.history.updateMany({
+          where: { videoId, userId },
+          data: { updatedAt: new Date() },
+        });
+      } else {
+        return await this.dbService.history.create({
+          data: { videoId, userId },
+        });
+      }
     } catch (error) {
       throw new BadRequestException();
     }

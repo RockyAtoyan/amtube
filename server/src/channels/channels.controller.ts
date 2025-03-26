@@ -29,12 +29,14 @@ export class ChannelsController {
 
   @Get()
   findAll(
+    @Query('searchTerm') searchTerm,
     @Query('filter') filter: ChannelFilter = ChannelFilterEnum.POPULAR,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
   ) {
     if (isNaN(+page)) throw new NotFoundException();
     return this.channelsService.findAll(
+      searchTerm,
       filter,
       +page,
       isNaN(+limit) ? 10 : +limit,

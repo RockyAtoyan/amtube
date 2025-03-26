@@ -21,9 +21,24 @@ export class ChannelsService {
     }
   }
 
-  async findAll(filter: ChannelFilter, page: number, limit: number) {
+  async findAll(
+    searchTerm: string,
+    filter: ChannelFilter,
+    page: number,
+    limit: number,
+  ) {
     try {
       const options: Prisma.ChannelFindManyArgs = {
+        where: {
+          title: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+          description: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
         include: { user: true, subscribers: true },
         skip: page * limit,
         take: limit,

@@ -12,6 +12,7 @@ model Video {
   dislikes     User[]       @relation(name: "dislikedVideo")
   comments     Comment[]
   resolutions  Resolution[]
+  tags         Tag[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   channelId    String

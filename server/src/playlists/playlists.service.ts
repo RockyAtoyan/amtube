@@ -48,9 +48,24 @@ export class PlaylistsService {
     }
   }
 
-  async findAll(filter: PlaylistFilter, page: number, limit: number) {
+  async findAll(
+    searchTerm: string,
+    filter: PlaylistFilter,
+    page: number,
+    limit: number,
+  ) {
     try {
       const options: Prisma.PlaylistFindManyArgs = {
+        where: {
+          title: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+          description: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
         include: {
           user: true,
           channel: true,

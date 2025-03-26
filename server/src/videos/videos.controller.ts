@@ -58,16 +58,31 @@ export class VideosController {
 
   @Get()
   findAll(
+    @Query('searchTerm') searchTerm,
     @Query('filter') filter: VideoFilter = VideoFilterEnum.POPULAR,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
   ) {
     if (isNaN(+page)) throw new NotFoundException();
     return this.videosService.findAll(
+      searchTerm,
       filter,
       +page,
       isNaN(+limit) ? 10 : +limit,
     );
+  }
+
+  @Get('/trending')
+  getTrending(@Query('page') page = '0', @Query('limit') limit = '10') {
+    if (isNaN(+page)) throw new NotFoundException();
+    return this.videosService.getTrendings(+page, +limit);
+  }
+
+  @Get('/explore')
+  getExplore(@Req() req) {
+    const userId = req?.user?.sub;
+    if (userId) return this.videosService.getPersonalizedExplore(userId);
+    return this.videosService.getGeneralExplore();
   }
 
   @Get(':id')

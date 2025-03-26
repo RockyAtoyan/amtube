@@ -1,8 +1,10 @@
 import { BullModule } from '@nestjs/bullmq';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AnswersModule } from './answers/answers.module';
+import { CACHE_TTL_TIME } from './app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -16,6 +18,7 @@ import { PlaylistsModule } from './playlists/playlists.module';
 import { UsersModule } from './users/users.module';
 import { VideosModule } from './videos/videos.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -29,6 +32,10 @@ import { WebsocketModule } from './websocket/websocket.module';
         port: 6379,
       },
     }),
+    CacheModule.register({
+      ttl: CACHE_TTL_TIME,
+      isGlobal: true,
+    }),
     DbModule,
     UsersModule,
     AuthModule,
@@ -41,6 +48,7 @@ import { WebsocketModule } from './websocket/websocket.module';
     AnswersModule,
     NotificationsModule,
     WebsocketModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

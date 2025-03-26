@@ -43,12 +43,14 @@ export class PlaylistsController {
 
   @Get()
   findAll(
+    @Query('searchTerm') searchTerm,
     @Query('filter') filter: PlaylistFilterEnum = PlaylistFilterEnum.POPULAR,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
   ) {
     if (isNaN(+page)) throw new NotFoundException();
     return this.playlistsService.findAll(
+      searchTerm,
       filter,
       +page,
       isNaN(+limit) ? 10 : +limit,
