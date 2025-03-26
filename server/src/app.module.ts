@@ -14,6 +14,7 @@ import { VideosModule } from './videos/videos.module';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { CommentsModule } from './comments/comments.module';
 import { AnswersModule } from './answers/answers.module';
+import { WebsocketGateway } from './websocket/websocket.gateway';
 
 @Module({
   imports: [
@@ -39,6 +40,6 @@ import { AnswersModule } from './answers/answers.module';
     AnswersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, WebsocketGateway],
 })
 export class AppModule {}
