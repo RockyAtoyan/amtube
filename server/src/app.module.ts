@@ -11,6 +11,7 @@ import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
 import { UsersModule } from './users/users.module';
 import { VideosModule } from './videos/videos.module';
+import { PlaylistsModule } from './playlists/playlists.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { VideosModule } from './videos/videos.module';
     MediaModule,
     ChannelsModule,
     VideosModule,
+    PlaylistsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
