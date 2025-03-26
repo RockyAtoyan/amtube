@@ -6,4 +6,6 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: string;
+  isActivated: boolean;
+  isBanned: boolean;
 }

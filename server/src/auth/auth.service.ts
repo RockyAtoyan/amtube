@@ -63,6 +63,8 @@ export class AuthService {
       email: candidate.email,
       sub: candidate.id,
       role: candidate.role,
+      isActivated: candidate.isActivated,
+      isBanned: candidate.isBanned,
     };
     const tokens = this.generateTokens(payload);
     const { password, ...user } = candidate;
@@ -81,6 +83,8 @@ export class AuthService {
         sub: payload.sub,
         email: payload.email,
         role: payload.role,
+        isActivated: payload.isActivated,
+        isBanned: payload.isBanned,
       });
       return { accessToken: tokens.accessToken };
     } catch (err) {

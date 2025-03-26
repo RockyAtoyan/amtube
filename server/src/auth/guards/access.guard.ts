@@ -16,7 +16,10 @@ export class AccessGuard implements CanActivate {
     const body = request?.body;
     const user = request?.user;
     const userId = queryParams.userId ? queryParams.userId : body?.userId;
-    if (!user) throw new UnauthorizedException('You do not have access!');
+    if (!user) throw new UnauthorizedException();
+    if (!user.isActivated)
+      throw new UnauthorizedException({ mustActivate: true });
+    if (user.isBanned) throw new UnauthorizedException({ banned: true });
     if (userId !== user.sub && user?.role !== 'ADMIN')
       throw new UnauthorizedException('You do not have access!');
     return true;
