@@ -2,27 +2,37 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DbService } from './../db/db.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { findUserIncludeConfig } from './users.config';
 
 @Injectable()
 export class UsersService {
   constructor(private dbService: DbService) {}
 
   async findById(id: string) {
-    const user = await this.dbService.user.findUnique({ where: { id } });
+    const user = await this.dbService.user.findUnique({
+      where: { id },
+      include: findUserIncludeConfig,
+    });
     if (!user) return null;
     const { password, ...result } = user;
     return result;
   }
 
   async findByEmail(email: string) {
-    const user = await this.dbService.user.findUnique({ where: { email } });
+    const user = await this.dbService.user.findUnique({
+      where: { email },
+      include: findUserIncludeConfig,
+    });
     if (!user) return null;
     const { password, ...result } = user;
     return result;
   }
 
   async findByName(name: string) {
-    const user = await this.dbService.user.findUnique({ where: { name } });
+    const user = await this.dbService.user.findUnique({
+      where: { name },
+      include: findUserIncludeConfig,
+    });
     if (!user) return null;
     const { password, ...result } = user;
     return result;
