@@ -15,6 +15,7 @@ import { PlaylistsModule } from './playlists/playlists.module';
 import { CommentsModule } from './comments/comments.module';
 import { AnswersModule } from './answers/answers.module';
 import { WebsocketGateway } from './websocket/websocket.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { WebsocketGateway } from './websocket/websocket.gateway';
     PlaylistsModule,
     CommentsModule,
     AnswersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebsocketGateway],

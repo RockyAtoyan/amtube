@@ -5,6 +5,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { CreateNotificationDto } from 'src/notifications/dto/create-notification.dto';
+import { NotificationsService } from './../notifications/notifications.service';
 
 @WebSocketGateway({
   cors: {
@@ -17,6 +19,8 @@ export class WebsocketGateway implements OnGatewayDisconnect {
   server: Server;
 
   private userSockets = new Map<string, string>();
+
+  constructor(private notificationsService: NotificationsService) {}
 
   @SubscribeMessage('connection')
   handleConnection(client: Socket, payload: { userId: string }) {
@@ -43,16 +47,31 @@ export class WebsocketGateway implements OnGatewayDisconnect {
     }
   }
 
-  sendNotificationToUser(userId: string, notification: any) {
-    const userRoom = this.getRoomName(userId);
-    this.server.to(userRoom).emit('message', notification);
+  async sendNotificationToUser(
+    userId: string,
+    notification: CreateNotificationDto,
+  ) {
+    try {
+      const not = await this.notificationsService.create(notification);
+      const userRoom = this.getRoomName(userId);
+      this.server.to(userRoom).emit('message', not);
+    } catch (error) {}
   }
 
-  sendNotificationToUsers(userIds: string[], notification: any) {
-    userIds.forEach((userId) => {
-      const userRoom = this.getRoomName(userId);
-      this.server.to(userRoom).emit('message', notification);
-    });
+  async sendNotificationToUsers(
+    userIds: string[],
+    notification: Omit<CreateNotificationDto, 'userId'>,
+  ) {
+    for (const userId of userIds) {
+      try {
+        const not = await this.notificationsService.create({
+          ...notification,
+          userId,
+        });
+        const userRoom = this.getRoomName(userId);
+        this.server.to(userRoom).emit('message', not);
+      } catch (error) {}
+    }
   }
 
   private getRoomName(userId: string) {

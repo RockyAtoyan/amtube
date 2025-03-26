@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { DbService } from './../db/db.service';
 import { UsersService } from './../users/users.service';
 import { JwtPayload } from './auth.types';
@@ -27,6 +28,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
+    private socketService: WebsocketGateway,
   ) {}
 
   async signUp(dto: SignUpDto) {
@@ -130,6 +132,13 @@ export class AuthService {
     const { isActivated } = await this.usersService.activateUser(
       payload.userId,
     );
+    if (isActivated) {
+      await this.socketService.sendNotificationToUser(payload.userId, {
+        text: 'Congratulations! You succefully activated your account, enjoy!',
+        userId: payload.userId,
+        link: '/',
+      });
+    }
     return {
       success: !!isActivated,
       message: !isActivated
