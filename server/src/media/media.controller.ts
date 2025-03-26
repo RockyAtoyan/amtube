@@ -21,6 +21,6 @@ export class MediaController {
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadMediaDto,
   ) {
-    return this.mediaService.saveFile(file, dto.uploadPath);
+    return this.mediaService.saveFile(file, dto.uploadPath, dto.filename);
   }
 }

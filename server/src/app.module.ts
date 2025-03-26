@@ -11,6 +11,7 @@ import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
 import { UsersModule } from './users/users.module';
 import { VideosModule } from './videos/videos.module';
+import { PlaylistsModule } from './playlists/playlists.module';
 import { CommentsModule } from './comments/comments.module';
 import { AnswersModule } from './answers/answers.module';
 
@@ -33,6 +34,7 @@ import { AnswersModule } from './answers/answers.module';
     MediaModule,
     ChannelsModule,
     VideosModule,
+    PlaylistsModule,
     CommentsModule,
     AnswersModule,
   ],

@@ -7,32 +7,29 @@ export class MediaService {
   private UPLOADS_FOLDER_PATH = join(__dirname, '..', '..', '/uploads');
   private USERS_AVATARS_PATH = this.UPLOADS_FOLDER_PATH + '/users-avatars';
 
-  saveFile(file: Express.Multer.File, uploadPath: string) {
-    return this.save(this.UPLOADS_FOLDER_PATH + uploadPath, file);
+  saveFile(file: Express.Multer.File, uploadPath: string, filename?: string) {
+    return this.save(uploadPath, file, filename);
   }
 
-  async saveUserAvatar(
+  private async save(
+    uploadPath: string,
     file: Express.Multer.File,
-    userId: string,
-  ): Promise<string> {
+    filename?: string,
+  ) {
     const etc = file.originalname.split('.')[1];
     if (!etc) throw new BadRequestException();
-    const filename = userId + '.' + etc;
-    const uploadPath = this.USERS_AVATARS_PATH + '/' + filename;
-    await this.save(uploadPath, file);
-    return uploadPath;
-  }
-
-  private async save(uploadPath: string, file: Express.Multer.File) {
-    if (existsSync(uploadPath))
+    const name = filename + '.' + etc;
+    const path = join(uploadPath, name);
+    const fullPath = join(this.UPLOADS_FOLDER_PATH, path);
+    if (existsSync(fullPath))
       throw new BadRequestException('File is already exists!');
     try {
-      await new Promise<void>((resolve, reject) => {
-        writeFile(uploadPath, file.buffer, (error) => {
+      return await new Promise<string>((resolve, reject) => {
+        writeFile(fullPath, file.buffer, (error) => {
           if (error) {
             reject(error);
           }
-          resolve();
+          resolve(path);
         });
       });
     } catch (error) {
