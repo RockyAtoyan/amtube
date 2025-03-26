@@ -16,7 +16,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AuthService {
-  private ACCESS_TOKEN_AGE = '15s';
+  private ACCESS_TOKEN_AGE = '1h';
   private REFRESH_TOKEN_AGE = 1000 * 60 * 60 * 24 * 7; // 7 days
   private REFRESH_TOKEN_DAYS_AGE =
     String(this.REFRESH_TOKEN_AGE / (1000 * 60 * 60 * 24)) + 'd';

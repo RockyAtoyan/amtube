@@ -93,7 +93,7 @@ export class PlaylistsService {
           break;
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw new NotFoundException();
     }
   }
 

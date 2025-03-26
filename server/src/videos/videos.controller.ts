@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   Sse,
@@ -21,6 +23,7 @@ import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { VideosService } from './videos.service';
 import { ClientEvent, VideosSseService } from './videos.sse';
+import { VideoFilter, VideoFilterEnum } from './videos.types';
 
 @Controller('videos')
 export class VideosController {
@@ -53,30 +56,34 @@ export class VideosController {
     return this.videosSseService.addClient(userId);
   }
 
-  @Post()
-  create(@Body() createVideoDto: CreateVideoDto) {
-    return this.videosService.create(createVideoDto);
-  }
-
   @Get()
-  findAll() {
-    return this.videosService.findAll();
+  findAll(
+    @Query('filter') filter: VideoFilter = VideoFilterEnum.POPULAR,
+    @Query('page') page = '0',
+    @Query('limit') limit = '10',
+  ) {
+    if (isNaN(+page)) throw new NotFoundException();
+    return this.videosService.findAll(
+      filter,
+      +page,
+      isNaN(+limit) ? 10 : +limit,
+    );
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.videosService.findOne(+id);
+    return this.videosService.findOne(id);
   }
 
   @Auth()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVideoDto: UpdateVideoDto) {
-    return this.videosService.update(+id, updateVideoDto);
+    return this.videosService.update(id, updateVideoDto);
   }
 
   @Auth()
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.videosService.remove(+id);
+    return this.videosService.remove(id);
   }
 }
