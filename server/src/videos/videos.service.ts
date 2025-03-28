@@ -14,6 +14,7 @@ import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
 import { DbService } from './../db/db.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
+import { findVideoIncludeConfig } from './videos.config';
 import {
   ProcessVideoJobPayload,
   VideoFilter,
@@ -69,11 +70,7 @@ export class VideosService {
             mode: 'insensitive',
           },
         },
-        include: {
-          likes: true,
-          channel: true,
-          views: true,
-        },
+        include: findVideoIncludeConfig,
         skip: page * limit,
         take: limit,
       };
@@ -134,11 +131,7 @@ export class VideosService {
       }
 
       const videos = await this.dbService.video.findMany({
-        include: {
-          likes: true,
-          dislikes: true,
-          views: true,
-        },
+        include: findVideoIncludeConfig,
         orderBy: { createdAt: 'desc' },
       });
 
@@ -168,11 +161,7 @@ export class VideosService {
             _count: 'desc',
           },
         },
-        include: {
-          likes: true,
-          channel: true,
-          views: true,
-        },
+        include: findVideoIncludeConfig,
       });
     } catch (error) {
       throw new NotFoundException();
@@ -222,10 +211,11 @@ export class VideosService {
         take: 20,
         orderBy: [{ views: { _count: 'desc' } }, { likes: { _count: 'desc' } }],
         include: {
+          ...findVideoIncludeConfig,
           channel: {
             include: {
-              user: true
-            }
+              user: true,
+            },
           },
         },
       });
@@ -246,6 +236,7 @@ export class VideosService {
           },
           comments: {
             include: {
+              ...findVideoIncludeConfig,
               answers: {
                 include: { likes: true, dislikes: true, to: true, user: true },
               },

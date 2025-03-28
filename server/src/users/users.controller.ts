@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AddVideoToHistoryDto } from './dto/add-video-to-history.dto';
@@ -38,6 +40,22 @@ export class UsersController {
   @Get('/name/:name')
   findBySlug(@Param('name') name: string) {
     return this.usersService.findByName(name);
+  }
+
+  @Auth()
+  @Get('/history')
+  async getUserHistory(@Req() req) {
+    const userId = req?.user?.sub;
+    if (!userId) throw new UnauthorizedException();
+    return this.usersService.getUserHistory(userId);
+  }
+
+  @Auth()
+  @Get('/subscribes')
+  async getUserSubscribesVideos(@Req() req) {
+    const userId = req?.user?.sub;
+    if (!userId) throw new UnauthorizedException();
+    return this.usersService.getUserSubscribesVideos(userId);
   }
 
   @Auth({ mustHaveAccess: true })

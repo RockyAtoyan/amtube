@@ -1,6 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AnswersModule } from './answers/answers.module';
@@ -15,10 +16,10 @@ import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PlaylistsModule } from './playlists/playlists.module';
+import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
 import { VideosModule } from './videos/videos.module';
 import { WebsocketModule } from './websocket/websocket.module';
-import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TagsModule } from './tags/tags.module';
       ttl: CACHE_TTL_TIME,
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     DbModule,
     UsersModule,
     AuthModule,

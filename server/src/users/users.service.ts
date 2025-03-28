@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { findVideoIncludeConfig } from 'src/videos/videos.config';
 import { DbService } from './../db/db.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -36,6 +42,54 @@ export class UsersService {
     if (!user) return null;
     const { password, ...result } = user;
     return result;
+  }
+
+  async getUserHistory(userId: string) {
+    try {
+      const history = await this.dbService.history.findMany({
+        where: { userId },
+        include: {
+          video: {
+            include: findVideoIncludeConfig,
+          },
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+      const videos = history.map((h) => h.video);
+      return videos;
+    } catch (error) {
+      throw new NotFoundException();
+    }
+  }
+
+  async getUserSubscribesVideos(userId: string) {
+    try {
+      const channels = await this.dbService.channel.findMany({
+        where: {
+          subscribers: {
+            some: {
+              id: userId,
+            },
+          },
+        },
+        include: {
+          videos: {
+            include: findVideoIncludeConfig,
+          },
+        },
+      });
+      const videos = channels
+        .reduce((vs, v) => {
+          return [...vs, ...v.videos];
+        }, [])
+        .toSorted((v1, v2) => +v2.createdAt - +v1.createdAt);
+
+      return videos;
+    } catch (error) {
+      throw new NotFoundException();
+    }
   }
 
   async create(dto: CreateUserDto) {
@@ -130,6 +184,45 @@ export class UsersService {
       return user;
     } catch (error) {
       throw new BadRequestException();
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async scheduledCleanupHistories() {
+    try {
+      await this.cleanupAllUsersHistories();
+    } catch (error) {}
+  }
+
+  private async cleanupUserHistories(userId: string) {
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+    const latestHistories = await this.dbService.history.findMany({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' },
+      take: 10,
+      select: { id: true },
+    });
+
+    const keepIds = latestHistories.map((h) => h.id);
+
+    return this.dbService.history.deleteMany({
+      where: {
+        userId,
+        updatedAt: { lt: fiveDaysAgo },
+        NOT: { id: { in: keepIds } },
+      },
+    });
+  }
+
+  private async cleanupAllUsersHistories() {
+    const usersWithHistory = await this.dbService.history.findMany({
+      select: { userId: true },
+    });
+
+    for (const { userId } of usersWithHistory) {
+      await this.cleanupUserHistories(userId);
     }
   }
 }

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { DbService } from './../db/db.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -43,5 +44,23 @@ export class NotificationsService {
     } catch (error) {
       throw new NotFoundException();
     }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async scheduledCleanupNotifications() {
+    try {
+      await this.cleanupOldNotifications();
+    } catch (error) {}
+  }
+
+  private async cleanupOldNotifications() {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    return this.dbService.notification.deleteMany({
+      where: {
+        updatedAt: { lt: twoDaysAgo },
+      },
+    });
   }
 }
