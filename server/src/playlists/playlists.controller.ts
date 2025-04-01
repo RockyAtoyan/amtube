@@ -18,10 +18,10 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 import { PlaylistsService } from './playlists.service';
-import type {
+import {
   PlaylistFilterEnum,
-  ToggleSavePlaylistDto,
-  ToggleVideoToPlaylistDto,
+  type ToggleSavePlaylistDto,
+  type ToggleVideoToPlaylistDto,
 } from './playlists.types';
 
 @Controller('playlists')

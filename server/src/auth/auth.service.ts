@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { DbService } from './../db/db.service';

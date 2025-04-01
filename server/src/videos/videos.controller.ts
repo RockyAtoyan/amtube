@@ -16,14 +16,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { type Response } from 'express';
 import { Observable } from 'rxjs';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { VideosService } from './videos.service';
 import { ClientEvent, VideosSseService } from './videos.sse';
-import { VideoFilter, VideoFilterEnum } from './videos.types';
+import { type VideoFilter, VideoFilterEnum } from './videos.types';
 
 @Controller('videos')
 export class VideosController {

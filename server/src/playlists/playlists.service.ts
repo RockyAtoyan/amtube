@@ -9,7 +9,7 @@ import { DbService } from './../db/db.service';
 import { MediaService } from './../media/media.service';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
-import type { PlaylistFilter, PlaylistFilterEnum } from './playlists.types';
+import { type PlaylistFilter, PlaylistFilterEnum } from './playlists.types';
 
 @Injectable()
 export class PlaylistsService {

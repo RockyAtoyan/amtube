@@ -9,15 +9,15 @@ import {
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@prisma/client';
 import { Queue } from 'bullmq';
-import { Cache } from 'cache-manager';
+import { type Cache } from 'cache-manager';
 import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
 import { DbService } from './../db/db.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { findVideoIncludeConfig } from './videos.config';
-import type {
-  ProcessVideoJobPayload,
-  VideoFilter,
+import {
+  type ProcessVideoJobPayload,
+  type VideoFilter,
   VideoFilterEnum,
 } from './videos.types';
 

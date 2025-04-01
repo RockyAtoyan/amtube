@@ -10,10 +10,10 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { type Request } from 'express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ChannelsService } from './channels.service';
-import type { ChannelFilter, ChannelFilterEnum } from './channels.types';
+import { type ChannelFilter, ChannelFilterEnum } from './channels.types';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 
