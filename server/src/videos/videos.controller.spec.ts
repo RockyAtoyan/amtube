@@ -1,14 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from 'src/app.module';
 import { VideosController } from './videos.controller';
-import { VideosService } from './videos.service';
 
 describe('VideosController', () => {
   let controller: VideosController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [VideosController],
-      providers: [VideosService],
+      imports: [AppModule],
     }).compile();
 
     controller = module.get<VideosController>(VideosController);

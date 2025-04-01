@@ -11,6 +11,7 @@
     "start": "docker-compose up -d && nest start",
     "redis:up": "docker-compose up -d redis",
     "start:dev": "docker-compose up -d db_dev && bun run redis:up && nest start --watch",
+    "dev:down": "docker-compose stop db_dev && docker-compose down redis",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
