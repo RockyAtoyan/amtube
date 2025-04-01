@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AnswersService } from './answers.service';
-import { AnswerToggleLikeDto } from './answers.types';
+import { type AnswerToggleLikeDto } from './answers.types';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 

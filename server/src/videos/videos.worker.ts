@@ -11,7 +11,7 @@ import { Readable } from 'stream';
 import { DbService } from './../db/db.service';
 import { RENDITIONS } from './videos.constants';
 import { VideosSseEvents, VideosSseService } from './videos.sse';
-import { ProcessVideoJobPayload } from './videos.types';
+import { type ProcessVideoJobPayload } from './videos.types';
 
 ffmpegStatic && ffmpeg.setFfmpegPath(ffmpegStatic);
 

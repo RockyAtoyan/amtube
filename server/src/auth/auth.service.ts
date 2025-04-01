@@ -11,7 +11,7 @@ import { MailService } from 'src/mail/mail.service';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { DbService } from './../db/db.service';
 import { UsersService } from './../users/users.service';
-import { JwtPayload } from './auth.types';
+import { type JwtPayload } from './auth.types';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 

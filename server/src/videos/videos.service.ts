@@ -15,7 +15,7 @@ import { DbService } from './../db/db.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { findVideoIncludeConfig } from './videos.config';
-import {
+import type {
   ProcessVideoJobPayload,
   VideoFilter,
   VideoFilterEnum,

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Request } from 'express';
 import { DbService } from './../db/db.service';
-import { ChannelFilter, ChannelFilterEnum } from './channels.types';
+import type { ChannelFilter, ChannelFilterEnum } from './channels.types';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { UpdateChannelDto } from './dto/update-channel.dto';
 

@@ -1,5 +1,5 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
-import { AuthRoles } from '../auth.types';
+import { type AuthRoles } from '../auth.types';
 import { AccessGuard } from '../guards/access.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
