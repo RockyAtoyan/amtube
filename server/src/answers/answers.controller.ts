@@ -34,7 +34,7 @@ export class AnswersController {
   }
 
   @Auth({ mustHaveAccess: true })
-  @Patch(':id/likes')
+  @Patch('/likes/:id')
   toggleLike(@Param('id') id: string, @Body() dto: AnswerToggleLikeDto) {
     return this.answersService.toggleLike(
       dto.answerId,
@@ -49,9 +49,9 @@ export class AnswersController {
     return this.answersService.update(id, updateAnswerDto);
   }
 
-  @Auth({ mustHaveAccess: true })
+  @Auth()
   @Delete(':id')
-  remove(@Param('id') id: string, @Param('userId') userId: string) {
+  remove(@Param('id') id: string) {
     return this.answersService.remove(id);
   }
 }

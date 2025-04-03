@@ -63,7 +63,7 @@ export class PlaylistsController {
   }
 
   @Auth({ mustHaveAccess: true })
-  @Patch(':id/saved')
+  @Patch('/saved/:id')
   toggleSavePlaylist(
     @Param('id') id: string,
     @Body() dto: ToggleSavePlaylistDto,
@@ -76,7 +76,7 @@ export class PlaylistsController {
   }
 
   @Auth()
-  @Patch(':id/added')
+  @Patch('/added/:id')
   toggleVideoToPlaylist(
     @Param('id') id: string,
     @Body() dto: ToggleVideoToPlaylistDto,

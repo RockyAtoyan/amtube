@@ -1,0 +1,18 @@
+import { Channel } from "@/entities/channel/model/channel";
+import { Playlist } from "@/entities/playlist/model/playlist";
+import { Tag } from "@/entities/tag/model/tag";
+import { User } from "@/entities/user/model/user";
+
+import { Resolution } from "./resolution";
+import { Video } from "./video";
+
+export interface VideoWithRelations extends Video {
+  channel: Channel;
+  playlists: Playlist[];
+  views: History[];
+  likes: User[];
+  dislikes: User[];
+  comments: Comment[];
+  resolutions: Resolution[];
+  tags: Tag[];
+}

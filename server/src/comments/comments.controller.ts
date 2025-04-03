@@ -34,7 +34,7 @@ export class CommentsController {
   }
 
   @Auth({ mustHaveAccess: true })
-  @Patch(':id/likes')
+  @Patch('/likes/:id')
   toggleLike(@Param('id') id: string, @Body() dto: CommentToggleLikeDto) {
     return this.commentsService.toggleLike(
       dto.commentId,

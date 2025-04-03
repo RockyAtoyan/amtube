@@ -29,7 +29,7 @@ export class ChannelsController {
 
   @Get()
   findAll(
-    @Query('searchTerm') searchTerm,
+    @Query('searchTerm') searchTerm = '',
     @Query('filter') filter: ChannelFilter = ChannelFilterEnum.POPULAR,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
