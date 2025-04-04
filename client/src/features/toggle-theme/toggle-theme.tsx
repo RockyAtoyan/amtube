@@ -10,7 +10,7 @@ const ToggleThemeButton = () => {
 
   return (
     <Button
-      variant="outline"
+      variant="link"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
     >

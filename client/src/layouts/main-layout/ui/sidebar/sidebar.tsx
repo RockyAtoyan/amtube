@@ -8,6 +8,7 @@ import Separator from "@/shared/ui/separator";
 
 import { Menu as MenuIcon } from "lucide-react";
 
+import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "../constants";
 import Menu from "./menu";
 import SidebarSubscriptions from "./sidebar-subscriptions";
 import { SIDEBAR_DATA } from "./sidebar.data";
@@ -21,8 +22,12 @@ const Sidebar = () => {
     <aside
       className={cn(
         "flex-shrink-0 border-r border-border transition-all duration-300 ease-in-out relative h-full overflow-auto",
-        collapse ? "w-18" : "w-64",
       )}
+      style={{
+        width: collapse
+          ? SIDEBAR_COLLAPSED_WIDTH
+          : SIDEBAR_WIDTH,
+      }}
     >
       <div className="p-4 overflow-hidden">
         <div className="min-w-56">
