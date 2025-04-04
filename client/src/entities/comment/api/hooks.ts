@@ -2,10 +2,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { CommentsApi, ToggleLikeCommentDto, UpdateCommentDto } from "./api";
 
-export const useGetComments = () => {
+export const useGetComments = (videoId: string) => {
   const { data: comments, ...rest } = useQuery({
-    queryKey: ["comments"],
-    queryFn: CommentsApi.findAll,
+    queryKey: ["comments", videoId],
+    queryFn: () => CommentsApi.findAll(videoId),
   });
 
   return { comments, ...rest };

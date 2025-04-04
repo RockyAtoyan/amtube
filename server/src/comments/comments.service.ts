@@ -22,9 +22,12 @@ export class CommentsService {
     }
   }
 
-  async findAll() {
+  async findAll(videoId: string) {
     try {
       const comments = await this.dbService.comment.findMany({
+        where: {
+          videoId,
+        },
         orderBy: {
           createdAt: 'desc',
         },

@@ -37,9 +37,9 @@ export class CommentsApi {
     return res.data;
   }
 
-  static async findAll() {
+  static async findAll(videoId: string) {
     const res = await publicInstance.get<FindAllCommentResponse>(
-      ROUTES.comments.findAll.path,
+      ROUTES.comments.findAll.path + "/" + videoId,
     );
     return res.data;
   }

@@ -16,9 +16,9 @@ export async function createComment(dto: CreateCommentDto) {
   }
 }
 
-export async function findAllComments() {
+export async function findAllComments(videoId: string) {
   try {
-    const res = await CommentsApi.findAll();
+    const res = await CommentsApi.findAll(videoId);
     return res;
   } catch (error) {
     throw new Error("Failed to fetch comments");

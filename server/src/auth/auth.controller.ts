@@ -25,7 +25,7 @@ export class AuthController {
     return redirectLink ? response.redirect(redirectLink) : { success: true };
   }
 
-  @Auth({mustHaveAccess: true})
+  @Auth({ mustHaveAccess: true })
   @Get('send-email')
   async sendActivateEmail(@Query('userId') userId: string) {
     return await this.authService.sendActivateEmail(userId);
@@ -33,14 +33,18 @@ export class AuthController {
 
   @Post('sign-in')
   async signIn(@Body() dto: SignInDto, @Res({ passthrough: true }) res) {
-    const { refreshToken, ...result } = await this.authService.signIn(dto);
-    await this.authService.addTokenToResponse(res, refreshToken);
+    const { refreshToken, accessToken, ...result } =
+      await this.authService.signIn(dto);
+    await this.authService.addTokensToResponse(res, {
+      refreshToken,
+      accessToken,
+    });
     return result;
   }
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res) {
-    this.authService.removeTokenFromResponse(res);
+    this.authService.removeTokensFromResponse(res);
   }
 
   @Get('access-token')

@@ -17,11 +17,14 @@ import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AuthService {
-  private ACCESS_TOKEN_AGE = '1h';
+  private ACCESS_TOKEN_AGE = 1000 * 60 * 60; // 1 hour
+  private ACCESS_TOKEN_DAYS_AGE =
+    String(this.ACCESS_TOKEN_AGE / (1000 * 60 * 60)) + 'h';
   private REFRESH_TOKEN_AGE = 1000 * 60 * 60 * 24 * 7; // 7 days
   private REFRESH_TOKEN_DAYS_AGE =
     String(this.REFRESH_TOKEN_AGE / (1000 * 60 * 60 * 24)) + 'd';
   private REFRESH_TOKEN_COOKIE_NAME = 'REFRESH_TOKEN';
+  private ACCESS_TOKEN_COOKIE_NAME = 'ACCESS_TOKEN';
 
   constructor(
     private dbService: DbService,
@@ -90,21 +93,30 @@ export class AuthService {
       });
       return { accessToken: tokens.accessToken };
     } catch (err) {
-      this.removeTokenFromResponse(res);
+      this.removeTokensFromResponse(res);
       throw new UnauthorizedException('Refresh token expired!');
     }
   }
 
-  addTokenToResponse(res: Response, token: string) {
-    res.cookie(this.REFRESH_TOKEN_COOKIE_NAME, token, {
+  addTokensToResponse(
+    res: Response,
+    tokens: { accessToken: string; refreshToken: string },
+  ) {
+    res.cookie(this.REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, {
       httpOnly: true,
       maxAge: this.REFRESH_TOKEN_AGE,
       secure: true,
     });
+    res.cookie(this.ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
+      httpOnly: true,
+      maxAge: this.ACCESS_TOKEN_AGE,
+      secure: true,
+    });
   }
 
-  removeTokenFromResponse(res: Response) {
+  removeTokensFromResponse(res: Response) {
     res.clearCookie(this.REFRESH_TOKEN_COOKIE_NAME);
+    res.clearCookie(this.ACCESS_TOKEN_COOKIE_NAME);
   }
 
   async sendActivateEmail(userId: string) {
@@ -166,7 +178,7 @@ export class AuthService {
   private generateTokens(payload: JwtPayload) {
     return {
       accessToken: this.jwtService.sign(payload, {
-        expiresIn: this.ACCESS_TOKEN_AGE,
+        expiresIn: this.ACCESS_TOKEN_DAYS_AGE,
       }),
       refreshToken: this.jwtService.sign(payload, {
         expiresIn: this.REFRESH_TOKEN_DAYS_AGE,

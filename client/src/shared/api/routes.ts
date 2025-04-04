@@ -83,7 +83,7 @@ export const ROUTES = {
       method: "post",
     },
     findAll: {
-      path: "/comments",
+      path: "/comments/v",
       method: "get",
     },
     findOne: {
@@ -240,6 +240,10 @@ export const ROUTES = {
     },
     findOne: {
       path: "/videos",
+      method: "get",
+    },
+    findSimilar: {
+      path: "/videos/similar",
       method: "get",
     },
     update: {

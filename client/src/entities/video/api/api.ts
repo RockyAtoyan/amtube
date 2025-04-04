@@ -18,6 +18,7 @@ export type FindAllVideoResponse = {
 export type GetTrendingResponse = VideoWithRelations[];
 export type GetExploreResponse = VideoWithRelations[];
 export type FindOneVideoResponse = VideoWithRelations;
+export type FindSimilarVideoResponse = VideoWithRelations[];
 
 export class VideosApi {
   static async processVideoFile(dto: CreateVideoDto) {
@@ -76,6 +77,16 @@ export class VideosApi {
   static async findOne(id: string) {
     const res = await publicInstance.get<FindOneVideoResponse>(
       ROUTES.videos.findOne.path + "/" + id,
+    );
+    return res.data;
+  }
+
+  static async findSimilar(id: string, page: number, limit?: number) {
+    const res = await publicInstance.get<FindSimilarVideoResponse>(
+      ROUTES.videos.findSimilar.path,
+      {
+        params: { id, page, limit },
+      },
     );
     return res.data;
   }

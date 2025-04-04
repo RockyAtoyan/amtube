@@ -90,6 +90,15 @@ export class VideosController {
     return this.videosService.findOne(id);
   }
 
+  @Get('similar/:id')
+  getSimilarVideos(
+    @Param('id') videoId: string,
+    @Query('page') page: number = 0,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.videosService.getSimilarVideos(videoId, page, limit);
+  }
+
   @Auth()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVideoDto: UpdateVideoDto) {

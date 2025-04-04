@@ -257,6 +257,92 @@ export class VideosService {
     }
   }
 
+  async getSimilarVideos(
+    videoId: string,
+    page: number = 0,
+    limit: number = 10,
+  ) {
+    try {
+      const currentVideo = await this.dbService.video.findUnique({
+        where: { id: videoId },
+        include: {
+          tags: true,
+          channel: true,
+        },
+      });
+
+      if (!currentVideo) {
+        throw new NotFoundException();
+      }
+
+      const tagIds = currentVideo.tags.map((tag) => tag.id);
+      const channelId = currentVideo.channelId;
+
+      const titleWords = currentVideo.title
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((word) => word.length > 3);
+
+      const [videos, totalCount] = await Promise.all([
+        this.dbService.video.findMany({
+          where: {
+            AND: [
+              { id: { not: videoId } },
+              {
+                OR: [
+                  { tags: { some: { id: { in: tagIds } } } },
+                  { channelId: channelId },
+                  ...titleWords.map((word) => ({
+                    title: {
+                      contains: word,
+                      mode: Prisma.QueryMode.insensitive,
+                    },
+                  })),
+                ],
+              },
+            ],
+          },
+          include: findVideoIncludeConfig,
+          orderBy: [
+            { views: { _count: 'desc' } },
+            { likes: { _count: 'desc' } },
+            { createdAt: 'desc' },
+          ],
+          skip: page * limit,
+          take: limit,
+        }),
+        this.dbService.video.count({
+          where: {
+            AND: [
+              { id: { not: videoId } },
+              {
+                OR: [
+                  { tags: { some: { id: { in: tagIds } } } },
+                  { channelId: channelId },
+                  ...titleWords.map((word) => ({
+                    title: {
+                      contains: word,
+                      mode: Prisma.QueryMode.insensitive,
+                    },
+                  })),
+                ],
+              },
+            ],
+          },
+        }),
+      ]);
+
+      return {
+        videos,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasMore: (page + 1) * limit < totalCount,
+      };
+    } catch (error) {
+      throw new NotFoundException();
+    }
+  }
+
   async update(id: string, updateVideoDto: UpdateVideoDto) {
     try {
       const { tags, ...dto } = updateVideoDto;

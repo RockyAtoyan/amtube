@@ -60,6 +60,18 @@ export const useGetVideo = (id: string) => {
   return { video, ...rest };
 };
 
+export const useFindSimilarVideos = (
+  id: string,
+  page: number,
+  limit?: number,
+) => {
+  const { data: similarVideos, ...rest } = useQuery({
+    queryKey: ["similar-videos", id, page, limit],
+    queryFn: () => VideosApi.findSimilar(id, page, limit),
+  });
+
+  return { similarVideos, ...rest };
+};
 export const useUpdateVideo = () => {
   const { mutate: updateVideo, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: UpdateVideoDto }) =>

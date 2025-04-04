@@ -1,0 +1,20 @@
+Pages:	
+	Client: 
+		Explore
+		Subscription
+		Library
+		History
+		Watch Later
+		Liked Videos
+		Settings
+		Send feedback
+		Upload video
+		Update video
+		Search
+
+	Server 
+		Trending
+		Tags
+		Video
+		Channel
+		Playlist
