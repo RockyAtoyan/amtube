@@ -25,9 +25,9 @@ const NavItem: FC<Props> = ({ item }) => {
       href={item.href}
     >
       <Button
-        variant={isActive ? "ghost" : "link"}
+        variant={"link"}
         size="icon"
-        className={isActive ? "text-primary" : ""}
+        className={isActive ? "text-primary/100" : ""}
         asChild
       >
         <item.icon
