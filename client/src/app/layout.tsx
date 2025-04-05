@@ -1,4 +1,3 @@
-import MainLayout from "@/layouts/main-layout/main-layout";
 import Providers from "@/shared/config/providers";
 import { cn } from "@/shared/lib";
 
@@ -26,9 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(inter.className)}>
-        <Providers>
-          <MainLayout>{children}</MainLayout>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,5 +1,11 @@
-import axios from "axios";
-import Cookies from "js-cookie";
+import axios from "axios"
+import Cookies from "js-cookie"
+
+import {
+  ACCESS_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_NAME,
+} from "../config/auth/auth.confg"
+import { ROUTES } from "./routes"
 
 export const publicInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -11,11 +17,10 @@ export const authInstance = axios.create({
   withCredentials: true,
 });
 
-export const COOKIE_TOKEN = "amtube-access-token";
-
 authInstance.interceptors.request.use(
   (config) => {
-    const token = Cookies.get(COOKIE_TOKEN);
+    const token = Cookies.get(ACCESS_TOKEN_COOKIE_NAME);
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,15 +40,14 @@ authInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await publicInstance.get("/auth/refresh");
+        const response = await publicInstance.get(
+          ROUTES.auth.refreshAccessToken.path,
+        );
 
-        const accessToken = response.data.accessToken;
-        Cookies.set(COOKIE_TOKEN, accessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return authInstance(originalRequest);
       } catch (refreshError) {
-        Cookies.remove(COOKIE_TOKEN);
+        Cookies.remove(ACCESS_TOKEN_COOKIE_NAME);
+        Cookies.remove(REFRESH_TOKEN_COOKIE_NAME);
         return Promise.reject(refreshError);
       }
     }

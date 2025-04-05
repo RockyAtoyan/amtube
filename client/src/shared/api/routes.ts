@@ -1,7 +1,7 @@
 export const ROUTES = {
   auth: {
     signUp: {
-      path: "/auth/sigh-up",
+      path: "/auth/sign-up",
       method: "post",
     },
     activateAccount: {
@@ -15,6 +15,10 @@ export const ROUTES = {
     signIn: {
       path: "/auth/sign-in",
       method: "post",
+    },
+    profile: {
+      path: "/auth/profile",
+      method: "get",
     },
     logout: {
       path: "/auth/logout",

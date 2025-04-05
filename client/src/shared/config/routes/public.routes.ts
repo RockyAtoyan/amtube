@@ -16,4 +16,8 @@ export class PublicRoutes {
 
   static readonly SIGN_IN = "/sign-in";
   static readonly SIGN_UP = "/sign-up";
+  static readonly FORGOT_PASSWORD = "/forgot-password";
+
+  static readonly TERMS_OF_SERVICE = "/terms-of-service";
+  static readonly PRIVACY_POLICY = "/privacy-policy";
 }

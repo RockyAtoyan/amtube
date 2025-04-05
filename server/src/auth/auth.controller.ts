@@ -42,6 +42,12 @@ export class AuthController {
     return result;
   }
 
+  @Auth()
+  @Get('profile')
+  async getProfile(@Req() req) {
+    return this.authService.getProfile(req.user.sub);
+  }
+
   @Post('logout')
   logout(@Res({ passthrough: true }) res) {
     this.authService.removeTokensFromResponse(res);

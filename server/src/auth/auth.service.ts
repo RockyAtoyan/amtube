@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
+import { findUserIncludeConfig } from 'src/users/users.config';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { DbService } from './../db/db.service';
 import { UsersService } from './../users/users.service';
@@ -59,6 +60,7 @@ export class AuthService {
   async signIn(dto: SignInDto) {
     const candidate = await this.dbService.user.findUnique({
       where: { email: dto.email },
+      include: findUserIncludeConfig,
     });
     if (!candidate) throw new BadRequestException('User does not exist!');
     if (!bcrypt.compareSync(dto.password, candidate.password)) {
@@ -76,6 +78,16 @@ export class AuthService {
     return { user, ...tokens };
   }
 
+  async getProfile(userId: string) {
+    try {
+      const user = await this.usersService.findById(userId);
+      if (!user) throw 'error';
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  }
+
   async refreshAccessToken(req: Request, res: Response) {
     const refreshToken = req.cookies[this.REFRESH_TOKEN_COOKIE_NAME];
     if (!refreshToken) {
@@ -90,6 +102,10 @@ export class AuthService {
         role: payload.role,
         isActivated: payload.isActivated,
         isBanned: payload.isBanned,
+      });
+      res.cookie(this.ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
+        maxAge: this.ACCESS_TOKEN_AGE,
+        secure: true,
       });
       return { accessToken: tokens.accessToken };
     } catch (err) {
@@ -108,7 +124,6 @@ export class AuthService {
       secure: true,
     });
     res.cookie(this.ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
-      httpOnly: true,
       maxAge: this.ACCESS_TOKEN_AGE,
       secure: true,
     });

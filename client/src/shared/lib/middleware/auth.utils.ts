@@ -1,12 +1,12 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { redirectToLogin } from "./redirect.utils";
 import {
   getTokens,
   isAccessTokenValid,
   refreshAccessToken,
 } from "../jwt/token.utils";
+import { redirectToLogin } from "./redirect.utils";
 
 export async function handleAuthRoute(request: NextRequest) {
   const { accessToken, refreshToken } = getTokens(request);
@@ -28,6 +28,6 @@ export async function handleAuthRoute(request: NextRequest) {
   }
 
   const res = NextResponse.next();
-  res.headers.set("set-cookie", newAccessToken);
+
   return res;
 }

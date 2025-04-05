@@ -1,7 +1,7 @@
-import { HEADER_Z_INDEX } from "./ui/constants";
-import Header from "./ui/header/header";
-import Main from "./ui/main";
-import Sidebar from "./ui/sidebar/sidebar";
+import { HEADER_Z_INDEX } from "@/layouts/main-layout/ui/constants";
+import Header from "@/layouts/main-layout/ui/header/header";
+import Main from "@/layouts/main-layout/ui/main";
+import Sidebar from "@/layouts/main-layout/ui/sidebar/sidebar";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (

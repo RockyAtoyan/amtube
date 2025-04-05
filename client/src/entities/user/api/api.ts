@@ -19,8 +19,10 @@ export interface SignInDto {
 export interface SignInResponse {
   accessToken: string;
   refreshToken: string;
-  user: User;
+  user: UserWithRelations;
 }
+
+export interface GetProfileResponse extends UserWithRelations {}
 
 export type SendActivateEmailResponse = { success: boolean };
 export type RefreshAccessTokenResponse = { accessToken: string };
@@ -71,6 +73,13 @@ export class UsersApi {
     const res = await publicInstance.post<SignInResponse>(
       ROUTES.auth.signIn.path,
       dto,
+    );
+    return res.data;
+  }
+
+  static async getProfile() {
+    const res = await authInstance.get<GetProfileResponse>(
+      ROUTES.auth.profile.path,
     );
     return res.data;
   }

@@ -1,4 +1,13 @@
+import { PublicRoutes } from "@/shared/config/routes/public.routes";
+import { useAuthStore } from "@/shared/store/auth.store";
+
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+
 import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 import {
   AddVideoToHistoryDto,
@@ -8,24 +17,110 @@ import {
 } from "./api";
 
 export const useSignUp = () => {
+  const router = useRouter();
+
   const { mutate: signUp, ...rest } = useMutation({
+    mutationKey: ["sign-up"],
     mutationFn: UsersApi.signUp,
+    onSuccess: (data) => {
+      toast.success("Account created successfully!");
+      router.push(PublicRoutes.SIGN_IN);
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        if (error.status === 404) {
+          toast.error("Something went wrong, try again!");
+          return;
+        }
+        const message =
+          error.response?.data.message || "Something went wrong, try again!";
+        toast.error(message);
+      }
+    },
   });
 
   return { signUp, ...rest };
 };
 
-export const useSignIn = () => {
+export const useSignIn = (from?: string) => {
+  const router = useRouter();
+
+  const { setUser } = useAuthStore();
+
   const { mutate: signIn, ...rest } = useMutation({
+    mutationKey: ["sign-in"],
     mutationFn: UsersApi.signIn,
+    onSuccess: (data) => {
+      setUser(data.user);
+      toast.success("Signed in successfully!");
+      router.push(from || PublicRoutes.HOME);
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        if (error.status === 404) {
+          toast.error("Something went wrong, try again!");
+          return;
+        }
+        const message =
+          error.response?.data.message || "Something went wrong, try again!";
+        toast.error(message);
+      }
+    },
   });
 
   return { signIn, ...rest };
 };
 
+export const useGetProfile = () => {
+  const { setUser, setIsPending } = useAuthStore();
+
+  const {
+    data: profile,
+    isLoading,
+    ...rest
+  } = useQuery({
+    queryKey: ["profile"],
+    queryFn: UsersApi.getProfile,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setUser(profile);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (!isLoading) setIsPending(false);
+  }, [isLoading]);
+
+  return { profile, ...rest };
+};
+
 export const useLogout = () => {
+  const router = useRouter();
+
+  const { logout: logoutFromStore } = useAuthStore();
+
   const { mutate: logout, ...rest } = useMutation({
+    mutationKey: ["logout"],
     mutationFn: UsersApi.logout,
+    onSuccess: (data) => {
+      logoutFromStore();
+      toast.success("Logged out successfully!");
+      router.push(PublicRoutes.HOME);
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        if (error.status === 404) {
+          toast.error("Something went wrong, try again!");
+          return;
+        }
+        const message =
+          error.response?.data.message || "Something went wrong, try again!";
+        toast.error(message);
+      }
+    },
   });
 
   return { logout, ...rest };
@@ -37,15 +132,6 @@ export const useSendActivateEmail = () => {
   });
 
   return { sendActivateEmail, ...rest };
-};
-
-export const useRefreshAccessToken = () => {
-  const { data: accessToken, ...rest } = useQuery({
-    queryKey: ["refresh-access-token"],
-    queryFn: UsersApi.refreshAccessToken,
-  });
-
-  return { accessToken, ...rest };
 };
 
 export const useGetUser = (id: string) => {

@@ -1,12 +1,13 @@
 "use client";
 
 import ProfileButton from "@/features/profile-button/profile-button";
-import ToggleThemeButton from "@/features/toggle-theme/toggle-theme";
-import { StudioRoutes } from "@/shared/config/routes/studio.routes";
+import { PublicRoutes } from "@/shared/config/routes/public.routes";
+import { useAuthStore } from "@/shared/store/auth.store";
 import { useSidebarStore } from "@/shared/store/sidebar.store";
 import { Button } from "@/shared/ui/button";
+import { Skeleton } from "@/shared/ui/skeleton";
 
-import { Grid2X2, SearchIcon, SquarePlusIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -14,11 +15,13 @@ import {
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_WIDTH,
 } from "../constants";
-import NotificationsButton from "./notifications-button";
+import HeaderActions from "./header-actions";
 import SearchInput from "./search-input";
 
 const Header = () => {
   const { collapse } = useSidebarStore();
+  const { user, isPending } = useAuthStore();
+
   return (
     <header
       className="fixed top-0 right-0 py-3 px-6 pl-12 border-b border-border bg-background h-[4rem] transition-[width] duration-300 ease-in-out"
@@ -33,21 +36,16 @@ const Header = () => {
           <SearchInput />
         </div>
         <div className="flex items-center gap-5">
-          <div className="flex items-center gap-1">
-            <Button variant="link" size="icon" asChild>
-              <Link href={StudioRoutes.VIDEO_UPLOAD}>
-                <SquarePlusIcon />
-              </Link>
+          <HeaderActions />
+          {user ? (
+            <ProfileButton user={user} />
+          ) : !isPending ? (
+            <Button asChild>
+              <Link href={PublicRoutes.SIGN_IN}>Sign in</Link>
             </Button>
-            <Button variant="link" size="icon" asChild>
-              <Link href={StudioRoutes.STUDIO_HOME}>
-                <Grid2X2 />
-              </Link>
-            </Button>
-            <ToggleThemeButton />
-            <NotificationsButton />
-          </div>
-          <ProfileButton user={{ name: "Robert Atoyan" } as any} />
+          ) : (
+            <Skeleton className="w-10 h-10 rounded-lg" />
+          )}
         </div>
       </div>
     </header>
