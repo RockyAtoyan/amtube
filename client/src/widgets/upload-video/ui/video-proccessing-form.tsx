@@ -56,6 +56,7 @@ const VideoProccessingForm = ({
             "video/webm": [".webm"],
             "video/quicktime": [".mov"],
           }}
+          className='h-50 flex items-center justify-center'
         />
 
         {!isProcessing && files.length > 0 && (

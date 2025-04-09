@@ -40,7 +40,7 @@ const UploadVideoForm: FC<Props> = ({ channelId }) => {
   return (
     <div
       className={cn(
-        "max-w-2xl mx-auto p-6 bg-secondary/80 backdrop-blur-sm rounded-xl shadow-xl border border-border/20",
+        "flex-shrink-0 w-full max-w-2xl mx-auto p-6 bg-secondary/80 backdrop-blur-sm rounded-xl shadow-xl border border-border/20",
         step === 2 && "max-w-full",
       )}
     >

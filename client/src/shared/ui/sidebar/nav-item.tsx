@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib";
+import { useSidebarStore } from "@/shared/store/sidebar.store";
 import { Button } from "@/shared/ui/button";
 
 import { FC } from "react";
@@ -16,12 +17,19 @@ const NavItem: FC<Props> = ({ item }) => {
   const pathname = usePathname();
   const isActive =
     pathname === item.href ||
-    (pathname.startsWith(item.href) && item.href !== "/");
+    (pathname.startsWith(item.href) &&
+      item.href !== "/" &&
+      item.href !== "/studio");
+
+  const { collapse } = useSidebarStore();
 
   return (
     <Link
       title={item.label}
-      className={cn("flex items-center gap-4")}
+      className={cn(
+        "flex items-center gap-4 rounded-md transition-colors duration-300 ease-in-out",
+        isActive && !collapse && "bg-secondary/80",
+      )}
       href={item.href}
     >
       <Button
@@ -33,7 +41,7 @@ const NavItem: FC<Props> = ({ item }) => {
         <item.icon
           className={cn(
             "transition-colors",
-            isActive && "text-accent-secondary",
+            isActive && "text-accent dark:text-accent-secondary",
           )}
         />
       </Button>

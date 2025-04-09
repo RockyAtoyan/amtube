@@ -2,7 +2,7 @@ import UploadVideo from "@/widgets/upload-video/upload-video";
 
 const UploadVideoPage = () => {
   return (
-    <div>
+    <div className="flex items-center justify-center">
       <UploadVideo />
     </div>
   );

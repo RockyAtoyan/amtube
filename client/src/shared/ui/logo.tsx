@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { PublicRoutes } from "../config/routes/public.routes";
 
-const Logo = () => {
+const Logo = ({ isInStudio }: { isInStudio?: boolean }) => {
   return (
     <Link
       href={PublicRoutes.HOME}
@@ -11,6 +11,7 @@ const Logo = () => {
     >
       <Youtube className="text-accent" size={32} />
       <span>AmTube</span>
+      {isInStudio && <span className="text-primary/50">Studio</span>}
     </Link>
   );
 };

@@ -7,7 +7,7 @@ import { FC } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { ISidebarSubscriptionItem } from "./sidebar.types";
+import { ISidebarSubscriptionItem } from "./public-sidebar.types";
 
 interface Props {
   item: ISidebarSubscriptionItem;

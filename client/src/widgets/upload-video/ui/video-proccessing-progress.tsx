@@ -13,7 +13,7 @@ const VideoProccessingProgress: FC<Props> = ({ processingProgress }) => {
       </div>
       <div className="w-full bg-border/30 rounded-full h-2.5">
         <div
-          className="bg-accent h-2.5 rounded-full transition-all duration-300"
+          className="bg-accent h-2.5 rounded-full transition-all duration-300 animate-pulse"
           style={{ width: `${processingProgress}%` }}
         ></div>
       </div>

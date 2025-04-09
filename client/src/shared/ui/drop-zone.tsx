@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 
 import { X } from "lucide-react";
 
+import { cn } from "../lib";
 import { Button } from "./button";
 
 interface DropZoneProps {
@@ -11,6 +12,7 @@ interface DropZoneProps {
   disabled?: boolean;
   maxFiles?: number;
   accept?: Record<string, string[]>;
+  className?: string;
 }
 
 const DropZone: FC<DropZoneProps> = ({
@@ -19,6 +21,7 @@ const DropZone: FC<DropZoneProps> = ({
   disabled = false,
   maxFiles = 1,
   accept,
+  className,
 }) => {
   const [files, setFiles] = useState<File[]>([]);
 
@@ -43,13 +46,14 @@ const DropZone: FC<DropZoneProps> = ({
     <div className="space-y-2">
       <div
         {...getRootProps()}
-        className={`dropzone border-2 border-dashed p-4 rounded-md transition-all duration-200 ease-in-out
-          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-          ${
-            isDragActive
-              ? "border-accent bg-accent/10 shadow-md scale-[1.02]"
-              : "border-border hover:border-accent/50 hover:bg-accent/5 focus:border-accent focus:ring-2 focus:ring-accent/20"
-          }`}
+        className={cn(
+          "dropzone border-2 border-dashed p-4 rounded-md transition-all duration-200 ease-in-out",
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+          isDragActive
+            ? "border-accent bg-accent/10 shadow-md scale-[1.02]"
+            : "border-border hover:border-accent/50 hover:bg-accent/5 focus:border-accent focus:ring-2 focus:ring-accent/20",
+          className,
+        )}
       >
         <input {...getInputProps()} />
         {files.length > 0 ? (

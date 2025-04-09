@@ -1,7 +1,13 @@
 "use client";
 
 import ProfileButton from "@/features/profile-button/profile-button";
+import SearchInput from "@/features/search-input/search-input";
 import { PublicRoutes } from "@/shared/config/routes/public.routes";
+import {
+  HEADER_Z_INDEX,
+  SIDEBAR_COLLAPSED_WIDTH,
+  SIDEBAR_WIDTH,
+} from "@/shared/lib/constants";
 import { useAuthStore } from "@/shared/store/auth.store";
 import { useSidebarStore } from "@/shared/store/sidebar.store";
 import { Button } from "@/shared/ui/button";
@@ -10,15 +16,9 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 
-import {
-  HEADER_Z_INDEX,
-  SIDEBAR_COLLAPSED_WIDTH,
-  SIDEBAR_WIDTH,
-} from "../constants";
-import HeaderActions from "./header-actions";
-import SearchInput from "./search-input";
+import StudioHeaderActions from "./studio-header-actions";
 
-const Header = () => {
+const StudioHeader = () => {
   const { collapse } = useSidebarStore();
   const { user, isPending } = useAuthStore();
 
@@ -36,7 +36,7 @@ const Header = () => {
           <SearchInput />
         </div>
         <div className="flex items-center gap-5">
-          <HeaderActions />
+          <StudioHeaderActions />
           {user ? (
             <ProfileButton user={user} />
           ) : !isPending ? (
@@ -52,4 +52,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default StudioHeader;

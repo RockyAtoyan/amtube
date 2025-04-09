@@ -1,8 +1,8 @@
 import { PublicRoutes } from "@/shared/config/routes/public.routes";
 import { StudioRoutes } from "@/shared/config/routes/studio.routes";
+import { INavItem } from "@/shared/ui/sidebar/sidebar.types";
 
 import {
-  BookCopy,
   CirclePlay,
   Clock,
   Compass,
@@ -10,11 +10,10 @@ import {
   Heart,
   History,
   Library,
+  ListVideo,
   MessageCircleWarning,
   Settings,
 } from "lucide-react";
-
-import { INavItem } from "./sidebar.types";
 
 interface ISidebarData {
   TOP_NAV: INavItem[];
@@ -64,7 +63,7 @@ export const SIDEBAR_DATA: ISidebarData = {
     {
       label: "Playlists",
       href: PublicRoutes.PLAYLISTS,
-      icon: BookCopy,
+      icon: ListVideo,
     },
   ],
   BOTTOM_NAV: [

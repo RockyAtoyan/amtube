@@ -1,5 +1,6 @@
 "use client";
 
+import NotificationsButton from "@/features/notifications-button/notifications-button";
 import ToggleThemeButton from "@/features/toggle-theme/toggle-theme";
 import { StudioRoutes } from "@/shared/config/routes/studio.routes";
 import { useAuthStore } from "@/shared/store/auth.store";
@@ -9,9 +10,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Grid2X2, SquarePlusIcon } from "lucide-react";
 import Link from "next/link";
 
-import NotificationsButton from "./notifications-button";
-
-const HeaderActions = () => {
+const PublicHeaderActions = () => {
   const { user, isPending } = useAuthStore();
 
   return (
@@ -44,4 +43,4 @@ const HeaderActions = () => {
   );
 };
 
-export default HeaderActions;
+export default PublicHeaderActions;

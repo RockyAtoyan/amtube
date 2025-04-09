@@ -16,12 +16,9 @@ const UploadVideoTagsInput: FC<Props> = ({ tags, setTags }) => {
   };
 
   const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (
-      e.key === "Enter" &&
-      tagInput.trim() &&
-      !tags.find((tag) => tag === tagInput.trim())
-    ) {
+    if (e.key === "Enter" && tagInput.trim()) {
       e.preventDefault();
+      if (tags.find((tag) => tag === tagInput.trim())) return;
       setTags([...tags, tagInput.trim()]);
       setTagInput("");
     }
