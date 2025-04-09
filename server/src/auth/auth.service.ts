@@ -15,6 +15,7 @@ import { UsersService } from './../users/users.service';
 import { type JwtPayload } from './auth.types';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
+import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from './auth.config'
 
 @Injectable()
 export class AuthService {
@@ -24,8 +25,6 @@ export class AuthService {
   private REFRESH_TOKEN_AGE = 1000 * 60 * 60 * 24 * 7; // 7 days
   private REFRESH_TOKEN_DAYS_AGE =
     String(this.REFRESH_TOKEN_AGE / (1000 * 60 * 60 * 24)) + 'd';
-  private REFRESH_TOKEN_COOKIE_NAME = 'REFRESH_TOKEN';
-  private ACCESS_TOKEN_COOKIE_NAME = 'ACCESS_TOKEN';
 
   constructor(
     private dbService: DbService,
@@ -89,7 +88,7 @@ export class AuthService {
   }
 
   async refreshAccessToken(req: Request, res: Response) {
-    const refreshToken = req.cookies[this.REFRESH_TOKEN_COOKIE_NAME];
+    const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token should be passed!');
     }
@@ -103,7 +102,7 @@ export class AuthService {
         isActivated: payload.isActivated,
         isBanned: payload.isBanned,
       });
-      res.cookie(this.ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
+      res.cookie(ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
         maxAge: this.ACCESS_TOKEN_AGE,
         secure: true,
       });
@@ -118,20 +117,20 @@ export class AuthService {
     res: Response,
     tokens: { accessToken: string; refreshToken: string },
   ) {
-    res.cookie(this.REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, {
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, {
       httpOnly: true,
       maxAge: this.REFRESH_TOKEN_AGE,
       secure: true,
     });
-    res.cookie(this.ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
+    res.cookie(ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, {
       maxAge: this.ACCESS_TOKEN_AGE,
       secure: true,
     });
   }
 
   removeTokensFromResponse(res: Response) {
-    res.clearCookie(this.REFRESH_TOKEN_COOKIE_NAME);
-    res.clearCookie(this.ACCESS_TOKEN_COOKIE_NAME);
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
+    res.clearCookie(ACCESS_TOKEN_COOKIE_NAME);
   }
 
   async sendActivateEmail(userId: string) {

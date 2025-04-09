@@ -7,5 +7,6 @@ export class UploadMediaDto {
   uploadPath: string;
 
   @ApiProperty()
-  filename?: string;
+  @IsNotEmpty()
+  filename: string;
 }

@@ -6,6 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@prisma/client';
 import { Queue } from 'bullmq';
@@ -14,7 +15,7 @@ import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
 import { DbService } from './../db/db.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
-import { findVideoIncludeConfig } from './videos.config';
+import { DELETE_VIDEO_JOB_NAME, findVideoIncludeConfig } from './videos.config';
 import {
   type ProcessVideoJobPayload,
   type VideoFilter,
@@ -26,6 +27,7 @@ export class VideosService {
   constructor(
     @InjectQueue(VIDEO_QUEUE_NAME) private videoQueue: Queue,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private scheduler: SchedulerRegistry,
     private dbService: DbService,
   ) {}
 
@@ -45,7 +47,7 @@ export class VideosService {
         userId,
       };
       const job = await this.videoQueue.add('process-video', jobPayload);
-
+      await this.createVideoDeletingInterval(video.id);
       return video;
     } catch (error) {
       throw new BadRequestException();
@@ -377,6 +379,10 @@ export class VideosService {
       const video = await this.dbService.video.delete({
         where: { id },
       });
+      const job = await this.videoQueue.add(DELETE_VIDEO_JOB_NAME, {
+        videoFilename: video.publicId,
+        isDeleting: true,
+      });
       return video;
     } catch (error) {
       throw new NotFoundException();
@@ -410,5 +416,17 @@ export class VideosService {
       timeBonus * 0.1;
 
     return rating;
+  }
+
+  private async createVideoDeletingInterval(videoId: string) {
+    const callback = async () => {
+      try {
+        const video = await this.dbService.video.deleteMany({
+          where: { id: videoId, videoSrc: '' },
+        });
+      } catch {}
+    };
+    const interval = setInterval(callback, 1000 * 60 * 60 * 24);
+    this.scheduler.addInterval(videoId, interval);
   }
 }

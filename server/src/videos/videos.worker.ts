@@ -9,6 +9,7 @@ import { join } from 'path';
 import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
 import { Readable } from 'stream';
 import { DbService } from './../db/db.service';
+import { DELETE_VIDEO_JOB_NAME } from './videos.config';
 import { RENDITIONS } from './videos.constants';
 import { VideosSseEvents, VideosSseService } from './videos.sse';
 import { type ProcessVideoJobPayload } from './videos.types';
@@ -25,8 +26,8 @@ export class VideosWorker extends WorkerHost {
   }
 
   async process(job: Job<ProcessVideoJobPayload>) {
-    const fileBuffer = job.data.videoFile.buffer;
-    const { videoId, userId, videoFileName: fileName } = job.data;
+    const { videoId, userId, videoFileName: fileName, isDeleting } = job.data;
+    const relativeOutputDir = join('uploads/videos', `${fileName}`);
     const outputDir = join(
       __dirname,
       '..',
@@ -34,12 +35,19 @@ export class VideosWorker extends WorkerHost {
       'uploads/videos',
       `${fileName}`,
     );
+
+    if (job.name === DELETE_VIDEO_JOB_NAME) {
+      rmSync(outputDir, { recursive: true, force: true });
+      return;
+    }
+
     if (!userId) throw new BadRequestException();
 
-    const relativeOutputDir = join('uploads/videos', `${fileName}`);
     const outputPath = join(outputDir, 'playlist.m3u8');
 
     ensureDirSync(outputDir);
+
+    const fileBuffer = job.data.videoFile.buffer;
 
     try {
       const originalResolution =
@@ -113,9 +121,9 @@ export class VideosWorker extends WorkerHost {
                 .split(':')
                 .map(parseFloat);
               const currentTime = hours * 3600 + mins * 60 + secs;
-              percent = (currentTime / totalDuration) * 100;
+              percent = Math.round((currentTime / totalDuration) * 100);
             } else if (progress?.percent) {
-              percent = progress.percent;
+              percent = Math.round(progress.percent);
             }
             if (!percent) return;
             this.videosSseService.sendToClient(
@@ -135,17 +143,22 @@ export class VideosWorker extends WorkerHost {
               })
               .join('\n');
 
-            const masterPlaylistPath = join(relativeOutputDir, 'playlist.m3u8');
+            const masterPlaylistPath = join(outputDir, 'playlist.m3u8');
             writeFileSync(
               masterPlaylistPath,
               `#EXTM3U\n${masterPlaylistContent}`,
               'utf-8',
             );
 
+            const relativeMasterPlaylistPath = join(
+              relativeOutputDir,
+              'playlist.m3u8',
+            );
+
             await this.dbService.video.update({
               where: { id: videoId },
               data: {
-                videoSrc: masterPlaylistPath,
+                videoSrc: relativeMasterPlaylistPath,
                 resolutions: {
                   connectOrCreate: validRenditions
                     .filter((rendition) => rendition.quality !== 'original')
@@ -160,8 +173,14 @@ export class VideosWorker extends WorkerHost {
               },
             });
 
+            this.videosSseService.sendToClient(
+              userId,
+              { videoId, success: true },
+              VideosSseEvents.SUCCESS,
+            );
+
             resolve({
-              masterPlaylist: masterPlaylistPath,
+              masterPlaylist: relativeMasterPlaylistPath,
               renditions: validRenditions.map((rendition) => ({
                 quality: rendition.quality,
                 playlist: join(outputDir, `segment_${rendition.quality}.m3u8`),

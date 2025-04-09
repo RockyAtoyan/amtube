@@ -7,7 +7,9 @@ import { VideoWithRelations } from "../model/video-with-relations";
 export interface CreateVideoDto extends FormData {}
 export interface CreateVideoResponse extends Video {}
 
-export interface UpdateVideoDto extends Partial<CreateVideoDto> {}
+export interface UpdateVideoDto extends Partial<Video> {
+  tags?: string[];
+}
 export type UpdateVideoResponse = Video;
 
 export type FindAllVideoResponse = {

@@ -1,10 +1,32 @@
+import toast from "react-hot-toast";
+
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { UpdateVideoDto, VideosApi } from "./api";
 
+interface ProccessVideoDto {
+  file: File;
+  title: string;
+  description: string;
+  channelId: string;
+}
+
 export const useProcessVideoFile = () => {
-  const { mutate: processVideoFile, ...rest } = useMutation({
-    mutationFn: VideosApi.processVideoFile,
+  const { mutateAsync: processVideoFile, ...rest } = useMutation({
+    mutationFn: async (data: ProccessVideoDto) => {
+      try {
+        const formData = new FormData();
+        formData.append("file", data.file);
+        formData.append("title", data.title);
+        formData.append("description", data.description);
+        formData.append("channelId", data.channelId);
+
+        const response = await VideosApi.processVideoFile(formData);
+        return response;
+      } catch (error) {
+        toast.error("Failed to proccess video. Please try again!");
+      }
+    },
   });
 
   return { processVideoFile, ...rest };
@@ -72,10 +94,17 @@ export const useFindSimilarVideos = (
 
   return { similarVideos, ...rest };
 };
+
 export const useUpdateVideo = () => {
   const { mutate: updateVideo, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: UpdateVideoDto }) =>
       VideosApi.update(payload.id, payload.dto),
+    onError: () => {
+      toast.error("An error occurred during uploading. Try again!");
+    },
+    onSuccess: () => {
+      toast.success("Video updated successfully!");
+    },
   });
 
   return { updateVideo, ...rest };
@@ -84,6 +113,9 @@ export const useUpdateVideo = () => {
 export const useDeleteVideo = () => {
   const { mutate: deleteVideo, ...rest } = useMutation({
     mutationFn: (id: string) => VideosApi.delete(id),
+    onError: () => {
+      toast.error("An error occurred during deleting. Try again!");
+    },
   });
 
   return { deleteVideo, ...rest };

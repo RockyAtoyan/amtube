@@ -15,9 +15,11 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { type Response } from 'express';
 import { Observable } from 'rxjs';
+import { ACCESS_TOKEN_COOKIE_NAME } from 'src/auth/auth.config';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
@@ -30,6 +32,7 @@ export class VideosController {
   constructor(
     private videosService: VideosService,
     private videosSseService: VideosSseService,
+    private jwtService: JwtService,
   ) {}
 
   @Auth()
@@ -46,14 +49,22 @@ export class VideosController {
     return this.videosService.processVideoFile(file, processVideoDto, userId);
   }
 
-  @Auth()
   @Get('/stream-notifications')
   @Sse()
-  sse(@Req() req, @Res() res: Response): Observable<ClientEvent> {
-    const userId = req?.user?.sub;
-    if (!userId) throw new UnauthorizedException();
+  async sse(
+    @Req() req,
+    @Res() res: Response,
+  ): Promise<Observable<ClientEvent>> {
+    try {
+      const user = await this.jwtService.verifyAsync(
+        req.cookies[ACCESS_TOKEN_COOKIE_NAME],
+      );
+      if (!user?.sub) throw new UnauthorizedException();
 
-    return this.videosSseService.addClient(userId);
+      return this.videosSseService.addClient(user.sub);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
   }
 
   @Get()

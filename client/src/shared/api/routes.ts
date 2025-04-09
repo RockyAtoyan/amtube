@@ -109,7 +109,7 @@ export const ROUTES = {
   },
   media: {
     upload: {
-      path: "/upload",
+      path: "/media/upload",
       method: "post",
     },
   },

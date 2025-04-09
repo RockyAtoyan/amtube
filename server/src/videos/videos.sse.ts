@@ -8,6 +8,7 @@ export interface ClientEvent {
 }
 
 export enum VideosSseEvents {
+  SUCCESS = 'video-processing-success',
   PROGRESS = 'video-processing-progress',
   ERROR = 'video-processing-error'
 }

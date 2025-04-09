@@ -15,6 +15,7 @@ import { MediaService } from './media.service';
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
+  @Auth()
   @Post('/upload')
   @UseInterceptors(FileInterceptor('file'))
   saveFile(

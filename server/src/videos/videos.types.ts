@@ -3,6 +3,8 @@ export interface ProcessVideoJobPayload {
   videoFileName: string;
   videoFile: Express.Multer.File;
   userId: string;
+  isDeleting?: boolean;
+  videoSrc?: string;
 }
 
 export enum VideoFilterEnum {

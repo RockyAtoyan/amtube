@@ -1,11 +1,11 @@
-import axios from "axios"
-import Cookies from "js-cookie"
+import axios from "axios";
+import Cookies from "js-cookie";
 
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
-} from "../config/auth/auth.confg"
-import { ROUTES } from "./routes"
+} from "../config/auth/auth.confg";
+import { ROUTES } from "./routes";
 
 export const publicInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,

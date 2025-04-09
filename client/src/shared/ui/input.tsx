@@ -1,10 +1,36 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Eye, EyeOff } from "lucide-react";
 
 import { cn } from "../lib";
+import { Button } from "./button";
+
+interface FileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  onFileSelect: (file: File | null) => void;
+  className?: string;
+}
+
+export const FileInput: React.FC<FileInputProps> = ({
+  onFileSelect,
+  className,
+  ...props
+}) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    onFileSelect(file);
+  };
+
+  return (
+    <label className="cursor-pointer">
+      <input hidden type="file" onChange={handleFileChange} {...props} />
+      <Button size="lg" variant={"outline"} type="button" asChild className={cn(className)}>
+        <span>{props.placeholder || "Input file"}</span>
+      </Button>
+    </label>
+  );
+};
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -25,11 +51,17 @@ const Input: React.FC<InputProps> = ({
   type,
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(!!props.value || false);
+  const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordType = type === "password";
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      setIsFocused(!!inputRef.current.value);
+    }
+  }, [props.value]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -41,7 +73,7 @@ const Input: React.FC<InputProps> = ({
         <label
           className={cn(
             "absolute left-3 transition-all duration-200 ease-in-out bg-background px-1",
-            isFocused || inputRef.current?.value
+            isFocused || (inputRef.current && inputRef.current.value)
               ? "-top-2 text-xs text-primary/60 z-[1]"
               : "top-2 text-sm z-[0]",
             labelClassName,
@@ -67,7 +99,10 @@ const Input: React.FC<InputProps> = ({
             props.onFocus?.(event);
           }}
           onBlur={(event) => {
-            setIsFocused(false);
+            // Only set isFocused to false if the input is empty
+            if (!inputRef.current?.value) {
+              setIsFocused(false);
+            }
             props.onBlur?.(event);
           }}
           ref={(ref) => {
