@@ -43,6 +43,7 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
     handleSubmit,
     setValue,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: yupResolver(schema),
@@ -150,6 +151,7 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
     handleSubmit,
     setValue,
     reset,
+    control,
     formState: { errors, isSubmitting },
     videoFile,
     thumbnailFile,

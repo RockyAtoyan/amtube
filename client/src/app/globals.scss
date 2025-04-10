@@ -1,4 +1,5 @@
 @use "tailwindcss";
+@use "../shared/ui/html-editor/html-editor.styles.scss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 

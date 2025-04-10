@@ -1,10 +1,10 @@
 import Badge from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import HtmlEditor from "@/shared/ui/html-editor/html-editor";
 import Input from "@/shared/ui/input";
-import Textarea from "@/shared/ui/textarea";
 
 import { FC } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { Control, Controller, UseFormReturn } from "react-hook-form";
 
 import { Loader2, Upload } from "lucide-react";
 
@@ -27,6 +27,7 @@ interface Props {
   videoId: string | null;
   isSubmitting: boolean;
   isUploadingPending: boolean;
+  control: Control<FormValues>;
 }
 
 const VideoInfoForm: FC<Props> = ({
@@ -44,6 +45,7 @@ const VideoInfoForm: FC<Props> = ({
   videoId,
   isSubmitting,
   isUploadingPending,
+  control,
 }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -63,13 +65,24 @@ const VideoInfoForm: FC<Props> = ({
                 {...register("title")}
               />
 
-              <Textarea
-                labelClassName="bg-secondary"
-                label="Description"
-                error={errors.description?.message}
-                {...register("description")}
-                className="min-h-50"
-              />
+              <div>
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field }) => (
+                    <HtmlEditor
+                      placeholder="Video's description"
+                      value={field.value}
+                      onChange={(value) => field.onChange(value)}
+                    />
+                  )}
+                />
+                {errors.description?.message && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
 
               <Badge variant="info">
                 To add tags, press enter after each tag

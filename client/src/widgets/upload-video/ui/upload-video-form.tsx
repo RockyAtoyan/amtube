@@ -35,12 +35,13 @@ const UploadVideoForm: FC<Props> = ({ channelId }) => {
     setThumbnailFile,
     handleClearFile,
     isSubmitting,
+    control,
   } = useUploadVideo({ channelId, setStep });
 
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-full max-w-2xl mx-auto p-6 bg-secondary/80 backdrop-blur-sm rounded-xl shadow-xl border border-border/20",
+        "w-full max-w-2xl mx-auto p-6 bg-secondary/80 rounded-xl shadow-xl border border-border/20",
         step === 2 && "max-w-full",
       )}
     >
@@ -77,6 +78,7 @@ const UploadVideoForm: FC<Props> = ({ channelId }) => {
           videoId={videoId}
           isSubmitting={isSubmitting}
           isUploadingPending={isUploadingPending}
+          control={control}
         />
       )}
     </div>
