@@ -2,7 +2,7 @@
 
 import { cn } from "@/shared/lib";
 
-import React from "react";
+import React, { ReactNode } from "react";
 
 import { type VariantProps, cva } from "class-variance-authority";
 
@@ -12,12 +12,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-accent hover:bg-accent/90 text-background",
-        // destructive:
-        //   "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-accent-secondary hover:bg-accent-secondary hover:text-white",
+        destructive: "bg-destructive text-white hover:bg-destructive/90",
+        outline: "bg-secondary hover:bg-accent-secondary hover:text-white",
         secondary: "bg-secondary hover:bg-secondary/80",
-        ghost: "hover:bg-secondary ",
+        ghost: "hover:bg-secondary",
         link: "text-primary/70 hover:text-primary/100",
       },
       size: {
@@ -38,20 +36,36 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  children: ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp: React.ElementType = asChild ? "span" : "button";
+  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
+    if (asChild) {
+      return React.cloneElement(children as any, {
+        className: cn(
+          buttonVariants({ variant, size }),
+          //@ts-ignore
+          children?.props?.className,
+          className,
+        ),
+        ref,
+        ...props,
+      });
+    }
+
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size }), className)}
         ref={ref}
         {...props}
-      />
+      >
+        {children}
+      </button>
     );
   },
 );
+
 Button.displayName = "Button";
 
 export { Button, buttonVariants };

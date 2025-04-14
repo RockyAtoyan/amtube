@@ -11,11 +11,7 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button
-      variant="outline"
-      onClick={handleLogout}
-      disabled={isPending}
-    >
+    <Button size={"sm"} variant="destructive" onClick={handleLogout} disabled={isPending}>
       {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Logout"}
     </Button>
   );

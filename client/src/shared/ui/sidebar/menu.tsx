@@ -40,12 +40,14 @@ const Menu: FC<MenuProps> = ({ items, title, isLimited = true }) => {
           onClick={() => setShowMore(!isShowMore)}
         >
           <Button asChild variant="link" size="icon">
-            <ChevronDown
-              className={cn(
-                "transition-transform duration-300 ease-in-out",
-                isShowMore && "rotate-180",
-              )}
-            />
+            <span>
+              <ChevronDown
+                className={cn(
+                  "transition-transform duration-300 ease-in-out",
+                  isShowMore && "rotate-180",
+                )}
+              />
+            </span>
           </Button>
           <span className="text-[0.7rem] font-semibold uppercase text-primary/50">
             {isShowMore ? "show less" : "show more"}

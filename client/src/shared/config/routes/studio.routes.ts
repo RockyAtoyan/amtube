@@ -10,4 +10,5 @@ export class StudioRoutes {
     return `/studio/playlists/${playlistId}`;
   }
   static readonly CHANNEL = "/studio/channel";
+  static readonly PROFILE = "/studio/profile";
 }

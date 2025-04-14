@@ -27,7 +27,7 @@ const NavItem: FC<Props> = ({ item }) => {
     <Link
       title={item.label}
       className={cn(
-        "flex items-center gap-4 rounded-md transition-colors duration-300 ease-in-out",
+        "group flex items-center gap-4 rounded-md transition-colors duration-300 ease-in-out",
         isActive && !collapse && "bg-secondary/80",
       )}
       href={item.href}
@@ -38,14 +38,23 @@ const NavItem: FC<Props> = ({ item }) => {
         className={isActive ? "text-primary/100" : ""}
         asChild
       >
-        <item.icon
-          className={cn(
-            "transition-colors",
-            isActive && "text-accent dark:text-accent-secondary",
-          )}
-        />
+        <span>
+          <item.icon
+            className={cn(
+              "transition-colors group-hover:text-accent-secondary",
+              isActive && "text-accent dark:text-accent-secondary",
+            )}
+          />
+        </span>
       </Button>
-      <span>{item.label}</span>
+      <span
+        className={cn(
+          "transition-colors",
+          !isActive && "group-hover:text-accent-secondary",
+        )}
+      >
+        {item.label}
+      </span>
     </Link>
   );
 };
