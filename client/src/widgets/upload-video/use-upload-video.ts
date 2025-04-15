@@ -81,6 +81,13 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
     }
   }, [isUploadingError]);
 
+  const handleReset = () => {
+    setVideoFile(null);
+    setThumbnailFile(null);
+    setTags([]);
+    reset();
+  };
+
   const handleFileDrop = (files: File[]) => {
     if (files.length > 0) {
       const file = files[0];
@@ -118,8 +125,7 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
       });
 
       setStep(1);
-      setVideoFile(null);
-      reset();
+      handleReset();
     } catch (error) {
       toast.error("An error occurred during uploading thumbnail. Try again!");
     }
@@ -136,6 +142,7 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
     handleError("");
     handleClearFile();
     setStep(1);
+    handleReset();
   };
 
   return {

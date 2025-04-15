@@ -380,7 +380,7 @@ export class VideosService {
         where: { id },
       });
       const job = await this.videoQueue.add(DELETE_VIDEO_JOB_NAME, {
-        videoFilename: video.publicId,
+        videoFileName: video.publicId,
         isDeleting: true,
       });
       return video;

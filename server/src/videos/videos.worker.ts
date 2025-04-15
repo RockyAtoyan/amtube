@@ -28,13 +28,7 @@ export class VideosWorker extends WorkerHost {
   async process(job: Job<ProcessVideoJobPayload>) {
     const { videoId, userId, videoFileName: fileName, isDeleting } = job.data;
     const relativeOutputDir = join('uploads/videos', `${fileName}`);
-    const outputDir = join(
-      __dirname,
-      '..',
-      '..',
-      'uploads/videos',
-      `${fileName}`,
-    );
+    const outputDir = join(process.cwd(), 'uploads/videos', `${fileName}`);
 
     if (job.name === DELETE_VIDEO_JOB_NAME) {
       rmSync(outputDir, { recursive: true, force: true });
@@ -221,13 +215,7 @@ export class VideosWorker extends WorkerHost {
       { videoId, error: true },
       VideosSseEvents.ERROR,
     );
-    const outputDir = join(
-      __dirname,
-      '..',
-      '..',
-      'uploads/videos',
-      `${fileName}`,
-    );
+    const outputDir = join(process.cwd(), 'uploads/videos', `${fileName}`);
     rmSync(outputDir, { recursive: true, force: true });
     try {
       await this.dbService.video.delete({ where: { id: videoId } });
