@@ -25,7 +25,7 @@ export class MediaService {
     ensureDirSync(dirFullPath);
     const fullPath = join(this.UPLOADS_FOLDER_PATH, path);
     if (existsSync(fullPath))
-      throw new BadRequestException('File is already exists!');
+      await this.deleteFile(fullPath)
     try {
       return await new Promise<string>((resolve, reject) => {
         writeFile(fullPath, file.buffer, (error) => {

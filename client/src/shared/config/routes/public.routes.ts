@@ -14,6 +14,10 @@ export class PublicRoutes {
     return `/c/${slug}`;
   }
 
+  static VIDEO(publicId: string) {
+    return `/v/${publicId}`;
+  }
+
   static readonly SIGN_IN = "/sign-in";
   static readonly SIGN_UP = "/sign-up";
   static readonly FORGOT_PASSWORD = "/forgot-password";

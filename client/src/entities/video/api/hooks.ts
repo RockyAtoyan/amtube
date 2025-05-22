@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useInView } from "react-intersection-observer";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { UpdateVideoDto, VideosApi } from "./api";
 
@@ -55,7 +57,7 @@ export const useGetVideos = (
   return { videos, ...rest };
 };
 
-export const useGetTrendingVideos = (page: number, limit?: number) => {
+export const useGetTrendingVideosByPage = (page: number, limit?: number) => {
   const { data: trendingVideos, ...rest } = useQuery({
     queryKey: ["trending-videos", page, limit],
     queryFn: () => VideosApi.getTrending(page, limit),
@@ -64,13 +66,53 @@ export const useGetTrendingVideos = (page: number, limit?: number) => {
   return { trendingVideos, ...rest };
 };
 
+export const useGetTrendingVideos = () => {
+  const { ref, inView } = useInView();
+  const { data, ...rest } = useInfiniteQuery({
+    queryKey: ["trending-videos"],
+    queryFn: ({ pageParam }) => VideosApi.getTrending(pageParam),
+    getNextPageParam: (lastPage, allPages) => {
+      return allPages.length;
+    },
+    initialPageParam: 0,
+  });
+  useEffect(() => {
+    if (inView && rest.hasNextPage) {
+      rest.fetchNextPage();
+    }
+  }, [inView]);
+
+  return {
+    trendingVideosPages: data?.pages || [],
+    flagRef: ref,
+    loading: rest.status === "pending",
+    ...rest,
+  };
+};
+
 export const useGetExploreVideos = () => {
-  const { data: exploreVideos, ...rest } = useQuery({
+  const { ref, inView } = useInView();
+  const { data, ...rest } = useInfiniteQuery({
     queryKey: ["explore-videos"],
     queryFn: VideosApi.getExplore,
+    getNextPageParam: (lastPage, allPages) => {
+      return allPages.length;
+    },
+    initialPageParam: 0,
   });
 
-  return { exploreVideos, ...rest };
+  useEffect(() => {
+    if (inView && rest.hasNextPage) {
+      rest.fetchNextPage();
+    }
+  }, [inView]);
+
+  return {
+    exploreVideosPages: data?.pages || [],
+    flagRef: ref,
+    loading: rest.status === "pending",
+    ...rest,
+  };
 };
 
 export const useGetVideo = (id: string) => {

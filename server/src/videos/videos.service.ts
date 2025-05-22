@@ -38,7 +38,7 @@ export class VideosService {
   ) {
     try {
       const video = await this.dbService.video.create({
-        data: { ...dto, publicId: createId(), videoSrc: '' },
+        data: { ...dto, title: file.originalname, publicId: createId(), videoSrc: '' },
       });
       const jobPayload: ProcessVideoJobPayload = {
         videoFileName: video.publicId,
@@ -139,9 +139,9 @@ export class VideosService {
 
       const videosWithRating = videos.map((video) => {
         const rating = this.calculateVideoRating({
-          views: video.views.length,
-          likes: video.likes.length,
-          dislikes: video.dislikes.length,
+          views: video?.views?.length || 0,
+          likes: video?.likes?.length || 0,
+          dislikes: video?.dislikes?.length || 0,
           createdAt: video.createdAt,
         });
         return { ...video, rating };
@@ -150,19 +150,21 @@ export class VideosService {
       const sortedVideos = videosWithRating.sort((a, b) => b.rating - a.rating);
       return sortedVideos.slice(page * limit, page * limit + limit);
     } catch (error) {
+      console.log(error)
       throw new NotFoundException();
     }
   }
 
-  async getGeneralExplore() {
+  async getGeneralExplore(page: number, limit = 12) {
     try {
       return this.dbService.video.findMany({
-        take: 10,
         orderBy: {
           views: {
             _count: 'desc',
           },
         },
+        skip: page * limit,
+        take: limit,
         include: findVideoIncludeConfig,
       });
     } catch (error) {
@@ -170,7 +172,7 @@ export class VideosService {
     }
   }
 
-  async getPersonalizedExplore(userId: string) {
+  async getPersonalizedExplore(userId: string, page: number, limit = 12) {
     try {
       const watchedVideos = await this.dbService.history.findMany({
         where: { userId },
@@ -210,7 +212,8 @@ export class VideosService {
             id: { in: watchedVideos.map((wv) => wv.videoId) },
           },
         },
-        take: 20,
+        take: limit,
+        skip: page * limit,
         orderBy: [{ views: { _count: 'desc' } }, { likes: { _count: 'desc' } }],
         include: {
           ...findVideoIncludeConfig,
@@ -347,16 +350,17 @@ export class VideosService {
 
   async update(id: string, updateVideoDto: UpdateVideoDto) {
     try {
-      const { tags, ...dto } = updateVideoDto;
+      const { tags, thumbnailUrl, ...dto } = updateVideoDto;
       const oldVideo = await this.dbService.video.findUnique({
         where: { id },
-        select: { tags: true },
+        select: { tags: true, thumbnailUrl: true },
       });
       const oldTags = oldVideo?.tags.map((tag) => ({ name: tag.name })) || [];
       const video = await this.dbService.video.update({
         where: { id },
         data: {
           ...dto,
+          thumbnailUrl: !thumbnailUrl ? dto.isDeletingThumbnail ? null : oldVideo?.thumbnailUrl : thumbnailUrl?.replace(/\\/g, '/'),
           tags: tags
             ? {
                 disconnect: oldTags,

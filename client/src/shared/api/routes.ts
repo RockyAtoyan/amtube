@@ -235,11 +235,11 @@ export const ROUTES = {
       method: "get",
     },
     getTrending: {
-      path: "/trending",
+      path: "/videos/trending",
       method: "get",
     },
     getExplore: {
-      path: "/explore",
+      path: "/videos/explore",
       method: "get",
     },
     findOne: {

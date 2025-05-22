@@ -14,18 +14,18 @@ import {
   UnauthorizedException,
   UploadedFile,
   UseInterceptors,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { type Response } from 'express';
-import { Observable } from 'rxjs';
-import { ACCESS_TOKEN_COOKIE_NAME } from 'src/auth/auth.config';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { CreateVideoDto } from './dto/create-video.dto';
-import { UpdateVideoDto } from './dto/update-video.dto';
-import { VideosService } from './videos.service';
-import { ClientEvent, VideosSseService } from './videos.sse';
-import { type VideoFilter, VideoFilterEnum } from './videos.types';
+} from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { type Response } from 'express'
+import { Observable } from 'rxjs'
+import { ACCESS_TOKEN_COOKIE_NAME } from 'src/auth/auth.config'
+import { Auth } from 'src/auth/decorators/auth.decorator'
+import { CreateVideoDto } from './dto/create-video.dto'
+import { UpdateVideoDto } from './dto/update-video.dto'
+import { VideosService } from './videos.service'
+import { ClientEvent, VideosSseService } from './videos.sse'
+import { type VideoFilter, VideoFilterEnum } from './videos.types'
 
 @Controller('videos')
 export class VideosController {
@@ -90,10 +90,22 @@ export class VideosController {
   }
 
   @Get('/explore')
-  getExplore(@Req() req) {
+  getExplore(
+    @Req() req,
+    @Query('page') page = '0',
+    @Query('limit') limit = '12',
+  ) {
     const userId = req?.user?.sub;
-    if (userId) return this.videosService.getPersonalizedExplore(userId);
-    return this.videosService.getGeneralExplore();
+    if (userId)
+      return this.videosService.getPersonalizedExplore(
+        userId,
+        +page,
+        isNaN(+limit) ? 12 : +limit,
+      );
+    return this.videosService.getGeneralExplore(
+      +page,
+      isNaN(+limit) ? 12 : +limit,
+    );
   }
 
   @Get(':id')

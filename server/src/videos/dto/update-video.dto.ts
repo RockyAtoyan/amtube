@@ -10,4 +10,8 @@ export class UpdateVideoDto extends PartialType(CreateVideoDto) {
   @IsOptional()
   @IsArray()
   tags?: string[];
+
+  @ApiProperty()
+  @IsOptional()
+  isDeletingThumbnail?: boolean
 }

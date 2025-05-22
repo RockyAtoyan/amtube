@@ -69,9 +69,14 @@ export class VideosApi {
     return res.data;
   }
 
-  static async getExplore() {
+  static async getExplore({ pageParam }: { pageParam: number }) {
     const res = await authInstance.get<GetExploreResponse>(
       ROUTES.videos.getExplore.path,
+      {
+        params: {
+          page: pageParam,
+        },
+      },
     );
     return res.data;
   }

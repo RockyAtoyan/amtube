@@ -29,6 +29,7 @@ export class VideosWorker extends WorkerHost {
     const { videoId, userId, videoFileName: fileName, isDeleting } = job.data;
     const relativeOutputDir = join('uploads/videos', `${fileName}`);
     const outputDir = join(process.cwd(), 'uploads/videos', `${fileName}`);
+    const thumbnailsDir = join(process.cwd(), 'uploads/videos-thumbnails');
 
     if (job.name === DELETE_VIDEO_JOB_NAME) {
       rmSync(outputDir, { recursive: true, force: true });
@@ -87,6 +88,30 @@ export class VideosWorker extends WorkerHost {
           .videoCodec('libx264')
           .audioCodec('aac');
 
+        let thumbnailFilename = `${videoId}.jpg`;
+        const thumbnailPath = join(thumbnailsDir, thumbnailFilename);
+        const screenshotTimes = [1, 5, 10]; // секунды
+        const screenshotPromises = screenshotTimes.map((time) => {
+          return new Promise<string | null>((resolveScreenshot) => {
+            const screenshotStream = new Readable();
+            screenshotStream.push(Buffer.from(fileBuffer));
+            screenshotStream.push(null);
+
+            ffmpeg(screenshotStream)
+              .screenshot({
+                count: 1,
+                timemarks: [time],
+                filename: `${videoId}.jpg`,
+                folder: thumbnailsDir,
+                size: `${originalResolution.width}x${originalResolution.height}`,
+              })
+              .on('end', () => resolveScreenshot(`${videoId}.jpg`))
+              .on('error', (err) => {
+                resolveScreenshot(null);
+              });
+          });
+        });
+
         validRenditions.forEach((rendition) => {
           const playlistName = `segment_${rendition.quality}.m3u8`;
           command
@@ -128,6 +153,11 @@ export class VideosWorker extends WorkerHost {
             job.updateProgress(percent);
           })
           .on('end', async () => {
+            const screenshotResults = await Promise.all(screenshotPromises);
+            const successfulScreenshots = screenshotResults.filter(Boolean);
+
+            const mainThumbnail = successfulScreenshots[0] || null;
+
             const masterPlaylistContent = validRenditions
               .map((rendition) => {
                 const bandwidth = rendition.videoBitrate
@@ -135,7 +165,7 @@ export class VideosWorker extends WorkerHost {
                   : 5000000;
                 return `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},RESOLUTION=${rendition.resolution[0]}x${rendition.resolution[1]}\nsegment_${rendition.quality}.m3u8`;
               })
-              .join('\n');
+              .join('\n');  
 
             const masterPlaylistPath = join(outputDir, 'playlist.m3u8');
             writeFileSync(
@@ -152,6 +182,7 @@ export class VideosWorker extends WorkerHost {
             await this.dbService.video.update({
               where: { id: videoId },
               data: {
+                thumbnailUrl: mainThumbnail ? "/videos-thumbnails/" + mainThumbnail  : null,
                 videoSrc: relativeMasterPlaylistPath,
                 resolutions: {
                   connectOrCreate: validRenditions
@@ -182,14 +213,16 @@ export class VideosWorker extends WorkerHost {
             });
           })
           .on('error', async (err) => {
-            await this.dbService.video.delete({ where: { id: videoId } });
+            console.log(err);
+            await this.dbService.video.deleteMany({ where: { id: videoId } });
+            rmSync(outputDir, { recursive: true, force: true });
             reject(err);
           })
           .run();
       });
     } catch (err) {
       rmSync(outputDir, { recursive: true, force: true });
-      await this.dbService.video.delete({ where: { id: videoId } });
+      await this.dbService.video.deleteMany({ where: { id: videoId } });
     }
   }
 
@@ -218,7 +251,7 @@ export class VideosWorker extends WorkerHost {
     const outputDir = join(process.cwd(), 'uploads/videos', `${fileName}`);
     rmSync(outputDir, { recursive: true, force: true });
     try {
-      await this.dbService.video.delete({ where: { id: videoId } });
+      await this.dbService.video.deleteMany({ where: { id: videoId } });
     } catch {}
   }
 
