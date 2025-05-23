@@ -1,5 +1,6 @@
-import { CreatePlaylistResponse } from "@/entities/playlist/api/api";
-import { useCreatePlaylist } from "@/entities/playlist/api/hooks";
+"use client";
+
+import { useCreateChannel } from "@/entities/channel/api/hooks";
 import { useAuthStore } from "@/shared/store/auth.store";
 import { Button } from "@/shared/ui/button";
 import Input from "@/shared/ui/input";
@@ -15,20 +16,20 @@ import * as yup from "yup";
 const schema = yup
   .object({
     title: yup.string().required(),
+    slug: yup.string().required(),
     description: yup.string().required(),
   })
   .required();
 type FormDataType = yup.InferType<typeof schema>;
 
 interface Props {
-  onSuccess?: (data: CreatePlaylistResponse) => void;
-  loading?: boolean;
+  onSuccess?: (data: any) => void;
 }
 
-const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
+const CreateChannelForm: FC<Props> = ({ onSuccess }) => {
   const { user } = useAuthStore();
 
-  const { createPlaylist, isPending } = useCreatePlaylist(onSuccess);
+  const { createChannel, isPending } = useCreateChannel(onSuccess);
 
   const {
     register,
@@ -39,16 +40,16 @@ const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
     resolver: yupResolver(schema),
   });
   const onSubmit = (data: FormDataType) => {
-    if (!user || !user.channel?.id) {
+    if (!user) {
       setError("root", { message: "Unauthorized" });
       return;
     }
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("userId", user.id);
-    formData.append("channelId", user.channel.id);
-    createPlaylist(formData);
+    createChannel({
+      title: data.title,
+      description: data.description,
+      slug: data.slug,
+      userId: user.id,
+    });
   };
 
   if (!user) return <p>Have no access</p>;
@@ -66,6 +67,13 @@ const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
           {...register("title")}
         />
 
+        <Input
+          containerClassName="w-full"
+          label="Slug"
+          error={errors.title?.message}
+          {...register("slug")}
+        />
+
         <Textarea
           containerClassName="w-full"
           label="Description"
@@ -78,11 +86,11 @@ const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
           className="w-full mt-2 bg-accent hover:bg-accent/90"
           type="submit"
         >
-          {isPending || loading ? "Creating..." : "Create"}
+          {isPending ? "Creating..." : "Create"}
         </Button>
       </form>
     </div>
   );
 };
 
-export default CreatePlaylistForm;
+export default CreateChannelForm;

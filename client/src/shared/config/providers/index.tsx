@@ -1,20 +1,45 @@
 "use client";
 
-import { ReactNode, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { ReactNode, useState } from "react"
+import toast, { Toaster } from "react-hot-toast"
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { ThemeProvider } from "next-themes";
+import { AxiosError } from "axios"
+import { ThemeProvider } from "next-themes"
 
-import ProfileProvider from "./profile.provider";
+import ProfileProvider from "./profile.provider"
 
 const Providers = ({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) => {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          mutations: {
+            onError(error, variables, context) {
+              if (error instanceof AxiosError) {
+                if (error.status === 404) {
+                  toast.error("Something went wrong, try again!");
+                  return;
+                }
+                const message =
+                  error.response?.data.message ||
+                  "Something went wrong, try again!";
+                toast.error(
+                  error.response?.data.mustActivate
+                    ? "You need to activate account to be able to make actions!"
+                    : message,
+                );
+              }
+            },
+          },
+        },
+      }),
+  );
 
   return (
     <QueryClientProvider client={queryClient}>

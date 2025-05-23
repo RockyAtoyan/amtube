@@ -13,11 +13,16 @@ export class ChannelsService {
   async create(createChannelDto: CreateChannelDto) {
     try {
       const channel = await this.dbService.channel.create({
-        data: createChannelDto,
+        data: {
+          ...createChannelDto,
+          slug: createChannelDto.slug?.replaceAll(' ', ''),
+        },
       });
       return channel;
     } catch (error) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        'Channel with this title or slug already exists!',
+      );
     }
   }
 
@@ -99,11 +104,16 @@ export class ChannelsService {
     try {
       const channel = await this.dbService.channel.update({
         where: { id },
-        data: updateChannelDto,
+        data: {
+          ...updateChannelDto,
+          slug: updateChannelDto.slug?.replaceAll(' ', ''),
+        },
       });
       return channel;
     } catch (error) {
-      throw new BadRequestException();
+      throw new BadRequestException(
+        'Channel with this title or slug already exists!',
+      );
     }
   }
 

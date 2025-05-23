@@ -1,20 +1,19 @@
-import { PublicRoutes } from "@/shared/config/routes/public.routes";
-import { useAuthStore } from "@/shared/store/auth.store";
+import { PublicRoutes } from "@/shared/config/routes/public.routes"
+import { useAuthStore } from "@/shared/store/auth.store"
 
-import { useEffect } from "react";
-import toast from "react-hot-toast";
+import { useEffect } from "react"
+import toast from "react-hot-toast"
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query"
 
-import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
 import {
   AddVideoToHistoryDto,
   BanUserDto,
   UpdateUserDto,
   UsersApi,
-} from "./api";
+} from "./api"
 
 export const useSignUp = () => {
   const router = useRouter();
@@ -25,17 +24,6 @@ export const useSignUp = () => {
     onSuccess: (data) => {
       toast.success("Account created successfully!");
       router.push(PublicRoutes.SIGN_IN);
-    },
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        if (error.status === 404) {
-          toast.error("Something went wrong, try again!");
-          return;
-        }
-        const message =
-          error.response?.data.message || "Something went wrong, try again!";
-        toast.error(message);
-      }
     },
   });
 
@@ -54,17 +42,6 @@ export const useSignIn = (from?: string) => {
       setUser(data.user);
       toast.success("Signed in successfully!");
       router.push(from || PublicRoutes.HOME);
-    },
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        if (error.status === 404) {
-          toast.error("Something went wrong, try again!");
-          return;
-        }
-        const message =
-          error.response?.data.message || "Something went wrong, try again!";
-        toast.error(message);
-      }
     },
   });
 
@@ -109,17 +86,6 @@ export const useLogout = () => {
       logoutFromStore();
       toast.success("Logged out successfully!");
       router.push(PublicRoutes.HOME);
-    },
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        if (error.status === 404) {
-          toast.error("Something went wrong, try again!");
-          return;
-        }
-        const message =
-          error.response?.data.message || "Something went wrong, try again!";
-        toast.error(message);
-      }
     },
   });
 

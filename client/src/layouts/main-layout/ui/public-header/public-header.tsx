@@ -44,7 +44,7 @@ const PublicHeader = () => {
               <Link href={PublicRoutes.SIGN_IN}>Sign in</Link>
             </Button>
           ) : (
-            <Skeleton className="w-10 h-10 rounded-lg" />
+            <Skeleton className="w-10 h-10 rounded-[15%]" />
           )}
         </div>
       </div>

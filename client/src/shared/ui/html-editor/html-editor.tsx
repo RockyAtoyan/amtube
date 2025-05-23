@@ -90,6 +90,9 @@ const HtmlEditor: FC<Props> = ({ value, onChange, placeholder }) => {
             return false;
           }
         },
+        HTMLAttributes: {
+          style: "color: blue; text-decoration:underline",
+        },
       }),
     ],
     content: value || "",
@@ -100,12 +103,16 @@ const HtmlEditor: FC<Props> = ({ value, onChange, placeholder }) => {
     },
     onUpdate(props) {
       const html = props.editor.getHTML();
-      onChange?.(html === "<p></p>" ? "" : sanitizeHtml(html));
+      onChange?.(html === "<p></p>" ? "" : html);
     },
   });
 
   const [url, setUrl] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    value && editor?.commands.setContent(value);
+  }, [value]);
 
   useEffect(() => {
     if (isOpen) {
@@ -194,7 +201,9 @@ const HtmlEditor: FC<Props> = ({ value, onChange, placeholder }) => {
 
             <Modal.Footer>
               <Modal.Close />
-              <Button onClick={() => setLink(url)}>Save</Button>
+              <Button type="button" onClick={() => setLink(url)}>
+                Save
+              </Button>
             </Modal.Footer>
           </Modal.Content>
         </Modal>

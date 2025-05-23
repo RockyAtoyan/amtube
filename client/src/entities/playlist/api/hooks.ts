@@ -1,8 +1,4 @@
-import toast from "react-hot-toast";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { AxiosError } from "axios";
 
 import { Playlist } from "../model/playlist";
 import {
@@ -44,17 +40,7 @@ export const useCreatePlaylist = (onSuccess?: Function) => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       onSuccess?.(data);
     },
-    onError(error) {
-      if (error instanceof AxiosError) {
-        if (error.status === 404) {
-          toast.error("Something went wrong, try again!");
-          return;
-        }
-        const message =
-          error.response?.data.message || "Something went wrong, try again!";
-        toast.error(message);
-      }
-    },
+    onError(error) {},
   });
 
   return { createPlaylist, ...rest };
@@ -80,17 +66,6 @@ export const useToggleVideoToPlaylist = (
     onSuccess(data, variables, context) {
       queryClient.invalidateQueries({ queryKey: ["trending-videos"] });
       onSuccess?.(data);
-    },
-    onError(error) {
-      if (error instanceof AxiosError) {
-        if (error.status === 404) {
-          toast.error("Something went wrong, try again!");
-          return;
-        }
-        const message =
-          error.response?.data.message || "Something went wrong, try again!";
-        toast.error(message);
-      }
     },
   });
 

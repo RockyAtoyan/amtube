@@ -6,7 +6,9 @@ import { useMutation } from "@tanstack/react-query";
 export type UploadMediaPath =
   | "/playlists-thumbnails"
   | "/videos-thumbnails"
-  | "users-avatars";
+  | "users-avatars"
+  | "/channels-avatars"
+  | "/channels-banners";
 
 export interface UploadMediaDto {
   uploadPath: UploadMediaPath;

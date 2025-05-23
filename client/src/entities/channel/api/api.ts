@@ -9,6 +9,8 @@ export interface CreateChannelDto {
   slug: string;
   description: string;
   userId: string;
+  bannerUrl?: string;
+  avatarUrl?: string;
 }
 export interface CreateChannelResponse extends Channel {}
 

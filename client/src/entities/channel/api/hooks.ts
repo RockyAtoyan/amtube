@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ChannelsApi, UpdateChannelDto } from "./api";
 
@@ -34,18 +34,29 @@ export const useGetChannelBySlug = (slug: string) => {
   return { channel, ...rest };
 };
 
-export const useCreateChannel = () => {
+export const useCreateChannel = (onSuccess?: Function) => {
+  const queryClient = useQueryClient();
+
   const { mutate: createChannel, ...rest } = useMutation({
     mutationFn: ChannelsApi.create,
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      onSuccess?.(data);
+    },
   });
 
   return { createChannel, ...rest };
 };
 
 export const useUpdateChannel = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: updateChannel, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: UpdateChannelDto }) =>
       ChannelsApi.update(payload.id, payload.dto),
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
   });
 
   return { updateChannel, ...rest };

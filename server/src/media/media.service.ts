@@ -24,15 +24,14 @@ export class MediaService {
     const dirFullPath = join(this.UPLOADS_FOLDER_PATH, uploadPath);
     ensureDirSync(dirFullPath);
     const fullPath = join(this.UPLOADS_FOLDER_PATH, path);
-    if (existsSync(fullPath))
-      await this.deleteFile(fullPath)
+    if (existsSync(fullPath)) await this.deleteFile(fullPath);
     try {
       return await new Promise<string>((resolve, reject) => {
         writeFile(fullPath, file.buffer, (error) => {
           if (error) {
             reject(error);
           }
-          resolve(path);
+          resolve(path.replaceAll(/\\/g, '/'));
         });
       });
     } catch (error) {

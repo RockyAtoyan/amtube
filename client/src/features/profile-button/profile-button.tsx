@@ -22,7 +22,7 @@ const ProfileButton: FC<Props> = ({ user }) => {
       <PopoverTrigger>
         <button
           className={cn(
-            "cursor-pointer block w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center",
+            "cursor-pointer block w-10 h-10 rounded-[15%] overflow-hidden flex items-center justify-center",
             !user.avatarUrl && "bg-primary",
           )}
         >
@@ -32,7 +32,7 @@ const ProfileButton: FC<Props> = ({ user }) => {
               alt={user.name}
               width={48}
               height={48}
-              className="w-full h-full object-fit object-cover"
+              className="w-full h-full object-center object-cover"
             />
           )}
           {!user.avatarUrl && (
@@ -45,7 +45,7 @@ const ProfileButton: FC<Props> = ({ user }) => {
       <PopoverContent className="min-w-32">
         <div className="flex flex-col gap-3">
           <Button variant={"outline"} asChild>
-            <Link href={StudioRoutes.PROFILE}>Channel</Link>
+            <Link href={StudioRoutes.CHANNEL}>Channel</Link>
           </Button>
           <Button variant={"outline"} asChild>
             <Link href={StudioRoutes.PROFILE}>Profile Settings</Link>

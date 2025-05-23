@@ -12,7 +12,7 @@ import { FreeMode, Scrollbar } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Swiper as SwiperType } from "swiper/types";
 
-export const TrendingSlider = () => {
+const TrendingSlider = () => {
   const { trendingVideos, isLoading } = useGetTrendingVideosByPage(0);
 
   const [slider, setSlider] = useState<SwiperType | null>(null);
@@ -61,3 +61,5 @@ export const TrendingSlider = () => {
     </div>
   );
 };
+
+export default TrendingSlider;

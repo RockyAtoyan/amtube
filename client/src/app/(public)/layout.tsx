@@ -9,7 +9,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <PublicSidebar />
       <div
         id="appScrollContainer"
-        className="relative flex-1 pt-[4rem] overflow-y-auto"
+        className="relative flex-1 mt-[4rem] overflow-y-auto"
         style={{
           zIndex: +HEADER_Z_INDEX + 1,
         }}

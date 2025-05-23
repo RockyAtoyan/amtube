@@ -1,22 +1,22 @@
 "use client";
 
-import { PublicRoutes } from "@/shared/config/routes/public.routes";
+import { PublicRoutes } from "@/shared/config/routes/public.routes"
 import {
   cn,
   formatDateRelative,
   formatNumber,
   getChannelLogoLetters,
-} from "@/shared/lib";
-import { Skeleton } from "@/shared/ui/skeleton";
+} from "@/shared/lib"
+import { Skeleton } from "@/shared/ui/skeleton"
 
-import { FC } from "react";
+import { FC } from "react"
 
-import { User } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { User } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
-import { VideoWithRelations } from "../../model/video-with-relations";
+import { VideoWithRelations } from "../../model/video-with-relations"
 
 interface Props {
   video: VideoWithRelations;
@@ -57,7 +57,10 @@ const VideoCard: FC<Props> = ({ video }) => {
         >
           {video.channel.avatarUrl && (
             <Image
-              src={video.channel.avatarUrl}
+              src={
+                `${process.env.NEXT_PUBLIC_API_URL}/uploads` +
+                video.channel.avatarUrl
+              }
               alt={video.channel.slug}
               width={48}
               height={48}
