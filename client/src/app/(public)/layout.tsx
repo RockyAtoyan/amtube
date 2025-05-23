@@ -8,6 +8,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="h-screen flex">
       <PublicSidebar />
       <div
+        id="appScrollContainer"
         className="relative flex-1 pt-[4rem] overflow-y-auto"
         style={{
           zIndex: +HEADER_Z_INDEX + 1,

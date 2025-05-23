@@ -1,5 +1,10 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { AxiosError } from "axios";
+
+import { Playlist } from "../model/playlist";
 import {
   PlaylistsApi,
   ToggleSavePlaylistDto,
@@ -30,9 +35,26 @@ export const useGetPlaylist = (id: string) => {
   return { playlist, ...rest };
 };
 
-export const useCreatePlaylist = () => {
+export const useCreatePlaylist = (onSuccess?: Function) => {
+  const queryClient = useQueryClient();
+
   const { mutate: createPlaylist, ...rest } = useMutation({
     mutationFn: PlaylistsApi.create,
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      onSuccess?.(data);
+    },
+    onError(error) {
+      if (error instanceof AxiosError) {
+        if (error.status === 404) {
+          toast.error("Something went wrong, try again!");
+          return;
+        }
+        const message =
+          error.response?.data.message || "Something went wrong, try again!";
+        toast.error(message);
+      }
+    },
   });
 
   return { createPlaylist, ...rest };
@@ -47,10 +69,29 @@ export const useToggleSavePlaylist = () => {
   return { toggleSavePlaylist, ...rest };
 };
 
-export const useToggleVideoToPlaylist = () => {
+export const useToggleVideoToPlaylist = (
+  onSuccess?: (data: Playlist) => void,
+) => {
+  const queryClient = useQueryClient();
+
   const { mutate: toggleVideoToPlaylist, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: ToggleVideoToPlaylistDto }) =>
       PlaylistsApi.toggleVideoToPlaylist(payload.id, payload.dto),
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({ queryKey: ["trending-videos"] });
+      onSuccess?.(data);
+    },
+    onError(error) {
+      if (error instanceof AxiosError) {
+        if (error.status === 404) {
+          toast.error("Something went wrong, try again!");
+          return;
+        }
+        const message =
+          error.response?.data.message || "Something went wrong, try again!";
+        toast.error(message);
+      }
+    },
   });
 
   return { toggleVideoToPlaylist, ...rest };

@@ -5,6 +5,7 @@ export const findVideoIncludeConfig: Prisma.VideoInclude = {
   dislikes: true,
   channel: true,
   views: true,
+  playlists: true,
 };
 
 export const DELETE_VIDEO_JOB_NAME = 'delete-video';

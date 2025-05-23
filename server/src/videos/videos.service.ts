@@ -38,7 +38,12 @@ export class VideosService {
   ) {
     try {
       const video = await this.dbService.video.create({
-        data: { ...dto, title: file.originalname, publicId: createId(), videoSrc: '' },
+        data: {
+          ...dto,
+          title: file.originalname,
+          publicId: createId(),
+          videoSrc: '',
+        },
       });
       const jobPayload: ProcessVideoJobPayload = {
         videoFileName: video.publicId,
@@ -150,7 +155,7 @@ export class VideosService {
       const sortedVideos = videosWithRating.sort((a, b) => b.rating - a.rating);
       return sortedVideos.slice(page * limit, page * limit + limit);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw new NotFoundException();
     }
   }
@@ -360,7 +365,11 @@ export class VideosService {
         where: { id },
         data: {
           ...dto,
-          thumbnailUrl: !thumbnailUrl ? dto.isDeletingThumbnail ? null : oldVideo?.thumbnailUrl : thumbnailUrl?.replace(/\\/g, '/'),
+          thumbnailUrl: !thumbnailUrl
+            ? dto.isDeletingThumbnail
+              ? null
+              : oldVideo?.thumbnailUrl
+            : thumbnailUrl?.replace(/\\/g, '/'),
           tags: tags
             ? {
                 disconnect: oldTags,

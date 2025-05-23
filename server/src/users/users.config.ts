@@ -8,4 +8,8 @@ export const findUserIncludeConfig: Prisma.UserInclude = {
   },
   notifications: true,
   subscribes: true,
+  playlists: {
+    include: { videos: true, channel: true },
+  },
+  
 };

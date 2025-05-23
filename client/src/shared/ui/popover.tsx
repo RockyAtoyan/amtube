@@ -50,8 +50,20 @@ export function Popover({
       }
     }
 
+    function setOpenFalse() {
+      setOpen(false);
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document
+      .getElementById("appScrollContainer")
+      ?.addEventListener("scroll", setOpenFalse);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document
+        .getElementById("appScrollContainer")
+        ?.removeEventListener("scroll", setOpenFalse);
+    };
   }, []);
 
   return (

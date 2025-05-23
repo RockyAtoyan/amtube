@@ -11,11 +11,15 @@ import { MailService } from 'src/mail/mail.service';
 import { findUserIncludeConfig } from 'src/users/users.config';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { DbService } from './../db/db.service';
+import { PlaylistsService } from './../playlists/playlists.service';
 import { UsersService } from './../users/users.service';
+import {
+  ACCESS_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_NAME,
+} from './auth.config';
 import { type JwtPayload } from './auth.types';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
-import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from './auth.config'
 
 @Injectable()
 export class AuthService {
@@ -29,6 +33,7 @@ export class AuthService {
   constructor(
     private dbService: DbService,
     private usersService: UsersService,
+    private playlistsService: PlaylistsService,
     private jwtService: JwtService,
     private mailService: MailService,
     private socketService: WebsocketGateway,
@@ -46,6 +51,13 @@ export class AuthService {
       ...dto,
       password,
     });
+    try {
+      await this.playlistsService.create({
+        title: 'Watch later',
+        description: '',
+        userId: newUser.id,
+      });
+    } catch {}
     const activationToken = this.generateActivationToken(newUser.id);
     if (activationToken) {
       await this.mailService.sendActivationEmail(

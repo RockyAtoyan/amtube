@@ -11,6 +11,7 @@ interface ModalProps {
   children: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  className?: string;
 }
 
 interface ModalTriggerProps extends ButtonProps {
@@ -27,6 +28,7 @@ interface ModalHeaderProps {
 
 interface ModalFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 
+//@ts-ignore
 interface ModalCloseProps extends ButtonProps {
   asChild?: boolean;
   children?: React.ReactNode;
@@ -41,6 +43,7 @@ const ModalRoot = ({
   children,
   isOpen: controlledIsOpen,
   onOpenChange,
+  className,
 }: ModalProps) => {
   const [isInternalOpen, setIsInternalOpen] = React.useState(false);
   const isControlled = controlledIsOpen !== undefined;
@@ -101,7 +104,10 @@ const ModalRoot = ({
           aria-hidden="true"
         />
         <div
-          className="relative w-full max-w-lg rounded-lg bg-background p-6 shadow-lg"
+          className={cn(
+            "relative w-full max-w-lg rounded-lg bg-background p-6 shadow-lg",
+            className,
+          )}
           role="dialog"
           aria-modal="true"
         >

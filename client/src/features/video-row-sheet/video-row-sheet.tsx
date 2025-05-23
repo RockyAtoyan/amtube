@@ -1,0 +1,34 @@
+import { VideoWithRelations } from "@/entities/video/model/video-with-relations";
+import VideoRowCard, {
+  VideoRowCardSkeleton,
+} from "@/entities/video/ui/video-row-card/video-row-card";
+
+import { FC } from "react";
+
+interface Props {
+  videos: VideoWithRelations[];
+}
+
+const VideoRowSheet: FC<Props> = ({ videos }) => {
+  return (
+    <div className="flex flex-col gap-8">
+      {videos.map((video) => (
+        <VideoRowCard key={video.publicId} video={video} />
+      ))}
+    </div>
+  );
+};
+
+export const VideoRowSkeletonSheet = ({ n = 12 }) => {
+  return (
+    <div className="flex flex-col gap-8">
+      {Array(n)
+        .fill(0)
+        .map((_, index) => (
+          <VideoRowCardSkeleton key={index} />
+        ))}
+    </div>
+  );
+};
+
+export default VideoRowSheet;
