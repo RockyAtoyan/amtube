@@ -27,6 +27,15 @@ export const formatNumber = (num: number, digits = 1) => {
     .slice()
     .reverse()
     .find((item) => num >= item.value);
+  if (digits === 1) {
+    if (item) {
+      const res = (num / item.value).toFixed(digits);
+      const resNumbers = res.split(".");
+      if (resNumbers[1] === "0") return resNumbers[0];
+      return res;
+    }
+    return "0";
+  }
   return item ? (num / item.value).toFixed(digits) + item.symbol : "0";
 };
 

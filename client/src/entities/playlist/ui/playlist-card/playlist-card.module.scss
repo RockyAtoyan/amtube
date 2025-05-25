@@ -1,0 +1,20 @@
+.card {
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    border-radius: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &:before {
+    width: 90%;
+    top: -0.25rem;
+  }
+  &:after {
+    z-index: -1;
+    width: 85%;
+    top: -0.5rem;
+  }
+}

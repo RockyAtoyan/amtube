@@ -33,13 +33,16 @@ export class ChannelsController {
     @Query('filter') filter: ChannelFilter = ChannelFilterEnum.POPULAR,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
+    @Query('pagination') pagination,
   ) {
     if (isNaN(+page)) throw new NotFoundException();
+
     return this.channelsService.findAll(
       searchTerm,
       filter,
       +page,
       isNaN(+limit) ? 10 : +limit,
+      pagination == 'true',
     );
   }
 

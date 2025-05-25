@@ -64,7 +64,9 @@ export const useToggleVideoToPlaylist = (
     mutationFn: (payload: { id: string; dto: ToggleVideoToPlaylistDto }) =>
       PlaylistsApi.toggleVideoToPlaylist(payload.id, payload.dto),
     onSuccess(data, variables, context) {
-      queryClient.invalidateQueries({ queryKey: ["trending-videos"] });
+      queryClient.invalidateQueries({
+        queryKey: ["trending-videos", "profile"],
+      });
       onSuccess?.(data);
     },
   });

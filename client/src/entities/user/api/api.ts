@@ -174,7 +174,7 @@ export class UsersApi {
 
   static async addVideoToHistory(dto: AddVideoToHistoryDto) {
     const res = await authInstance.patch<AddVideoToHistoryResponse>(
-      ROUTES.users.toggleChannelSubscribe.path,
+      ROUTES.users.addVideoToHistory.path,
       dto,
     );
     return res.data;
@@ -182,7 +182,7 @@ export class UsersApi {
 
   static async toggleChannelSubscribe(dto: ToggleChannelSubscribeDto) {
     const res = await authInstance.patch<ToggleChannelSubscribeDtoResponse>(
-      ROUTES.users.addVideoToHistory.path,
+      ROUTES.users.toggleChannelSubscribe.path,
       dto,
     );
     return res.data;

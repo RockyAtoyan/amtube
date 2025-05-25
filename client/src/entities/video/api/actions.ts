@@ -36,7 +36,7 @@ export async function getTrendingVideos(page: string, limit: string) {
 
 export async function getExploreVideos() {
   try {
-    const res = await VideosApi.getExplore();
+    const res = await VideosApi.getExplore({ pageParam: 0 });
     return res;
   } catch (error) {
     throw new Error("Failed to fetch explore videos");

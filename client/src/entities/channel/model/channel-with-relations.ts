@@ -1,12 +1,12 @@
-import { Playlist } from "@/entities/playlist/model/playlist";
+import { PlaylistWithRelations } from "@/entities/playlist/model/playlist-with-relations";
 import { User } from "@/entities/user/model/user";
-import { Video } from "@/entities/video/model/video";
+import { VideoWithRelations } from "@/entities/video/model/video-with-relations";
 
 import { Channel } from "./channel";
 
 export interface ChannelWithRelations extends Channel {
   user: User;
-  videos: Video[];
+  videos: VideoWithRelations[];
   subscribers: User[];
-  playlists: Playlist[];
+  playlists: PlaylistWithRelations[];
 }

@@ -38,6 +38,7 @@ export class ChannelsApi {
     searchTerm?: string,
     filter?: "popular" | "alphabet" | "alphabet(desc)",
     limit?: number,
+    pagination?: boolean,
   ) {
     const res = await publicInstance.get<FindAllChannelResponse>(
       ROUTES.channels.findAll.path,
@@ -47,6 +48,7 @@ export class ChannelsApi {
           searchTerm,
           filter,
           limit,
+          pagination,
         },
       },
     );

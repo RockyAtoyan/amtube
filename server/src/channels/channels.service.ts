@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { type Request } from 'express';
+import { findVideoIncludeConfig } from 'src/videos/videos.config';
 import { DbService } from './../db/db.service';
 import { type ChannelFilter, ChannelFilterEnum } from './channels.types';
 import { CreateChannelDto } from './dto/create-channel.dto';
@@ -31,8 +32,26 @@ export class ChannelsService {
     filter: ChannelFilter,
     page: number,
     limit: number,
+    pagination?: boolean,
   ) {
     try {
+      if (!pagination) {
+        return await this.dbService.channel.findMany({
+          include: {
+            user: true,
+            subscribers: true,
+            videos: { include: findVideoIncludeConfig },
+            playlists: {
+              include: {
+                user: true,
+                channel: true,
+                videos: { include: { channel: true } },
+              },
+            },
+          },
+        });
+      }
+
       const options: Prisma.ChannelFindManyArgs = {
         where: {
           title: {
@@ -89,14 +108,36 @@ export class ChannelsService {
   findById(id: string) {
     return this.dbService.channel.findUnique({
       where: { id },
-      include: { user: true, playlists: true, subscribers: true, videos: true },
+      include: {
+        user: true,
+        playlists: {
+          include: {
+            user: true,
+            channel: true,
+            videos: { include: { channel: true } },
+          },
+        },
+        subscribers: true,
+        videos: { include: findVideoIncludeConfig },
+      },
     });
   }
 
   findBySlug(slug: string) {
     return this.dbService.channel.findUnique({
       where: { slug },
-      include: { user: true, playlists: true, subscribers: true, videos: true },
+      include: {
+        user: true,
+        playlists: {
+          include: {
+            user: true,
+            channel: true,
+            videos: { include: { channel: true } },
+          },
+        },
+        subscribers: true,
+        videos: { include: findVideoIncludeConfig },
+      },
     });
   }
 

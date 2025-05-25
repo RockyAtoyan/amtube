@@ -43,11 +43,20 @@ const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
       setError("root", { message: "Unauthorized" });
       return;
     }
+    if (
+      user?.playlists?.find((playlist) => playlist.title === "Watch later") &&
+      data.title === "Watch later"
+    ) {
+      setError("root", {
+        message: "You can not create playlist with this title!",
+      });
+      return;
+    }
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("userId", user.id);
-    formData.append("channelId", user.channel.id);
+    // formData.append("channelId", user.channel.id);
     createPlaylist(formData);
   };
 

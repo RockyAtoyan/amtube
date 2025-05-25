@@ -1,5 +1,5 @@
 import { PublicRoutes } from "@/shared/config/routes/public.routes";
-import { getChannelLogoLetters } from "@/shared/lib";
+import { cn, getChannelLogoLetters } from "@/shared/lib";
 import { Button } from "@/shared/ui/button";
 
 import { FC } from "react";
@@ -16,22 +16,35 @@ interface Props {
 const SidebarSubscriptionItem: FC<Props> = ({ item }) => {
   return (
     <Link
-      className="flex items-center gap-4"
+      className="group flex items-center gap-4"
       href={PublicRoutes.CHANNEL(item.slug)}
     >
-      <Button variant={"link"} size="icon" asChild>
-        {!item.avatarUrl && getChannelLogoLetters(item.title)}
+      <Button
+        className={cn(
+          "flex-shrink-0 w-10 h-10 rounded-[15%] overflow-hidden flex items-center justify-center",
+          !item.avatarUrl && "bg-primary",
+        )}
+        variant={"link"}
+        size="icon"
+      >
+        {!item.avatarUrl && (
+          <span className="font-semibold text-lg text-background">
+            {getChannelLogoLetters(item.title)}
+          </span>
+        )}
         {item.avatarUrl && (
           <Image
-            src={item.avatarUrl}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads` + item.avatarUrl}
             alt={item.title}
             width={32}
             height={32}
-            className="w-10 h-10 object-cover object-center"
+            className="w-full h-full object-cover object-center "
           />
         )}
       </Button>
-      <span>{item.title}</span>
+      <span className="group-hover:text-accent-secondary line-clamp-1">
+        {item.title}
+      </span>
     </Link>
   );
 };

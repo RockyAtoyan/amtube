@@ -1,3 +1,5 @@
+import { PlaylistWithRelations } from "@/entities/playlist/model/playlist-with-relations";
+
 export class PublicRoutes {
   static readonly HOME = "/";
   static readonly TRENDING = "/trending";
@@ -16,6 +18,12 @@ export class PublicRoutes {
 
   static VIDEO(publicId: string) {
     return `/v/${publicId}`;
+  }
+
+  static PLAYLIST(playlist: PlaylistWithRelations) {
+    const videoId = playlist?.videos[0]?.publicId;
+    if (!videoId) return this.HOME;
+    return this.VIDEO(videoId) + `?list=${playlist.id}`;
   }
 
   static readonly SIGN_IN = "/sign-in";

@@ -1,22 +1,22 @@
 "use client";
 
-import { PublicRoutes } from "@/shared/config/routes/public.routes"
+import { PublicRoutes } from "@/shared/config/routes/public.routes";
 import {
   cn,
   formatDateRelative,
   formatNumber,
   getChannelLogoLetters,
-} from "@/shared/lib"
-import { Skeleton } from "@/shared/ui/skeleton"
+} from "@/shared/lib";
+import { Skeleton } from "@/shared/ui/skeleton";
 
-import { FC } from "react"
+import { FC } from "react";
 
-import { User } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import { VideoWithRelations } from "../../model/video-with-relations"
+import { VideoWithRelations } from "../../model/video-with-relations";
 
 interface Props {
   video: VideoWithRelations;
@@ -51,6 +51,7 @@ const VideoCard: FC<Props> = ({ video }) => {
           className="w-8 h-8 rounded-full bg-white absolute bottom-[8%] left-[5%] overflow-hidden flex items-center justify-center transition-all hover:scale-[1.1]"
           title={video.channel.title}
           onClick={(event) => {
+            event.preventDefault();
             event.stopPropagation();
             router.push(PublicRoutes.CHANNEL(video.channel.slug));
           }}
@@ -88,7 +89,7 @@ const VideoCard: FC<Props> = ({ video }) => {
         {video.title}
       </Link>
       <Link
-        className="line-clamp-1 mt-2 text-sm text-primary/70 transition-colors hover:text-primary/90"
+        className="line-clamp-1 mt-1 text-sm text-primary/70 transition-colors hover:text-primary/90"
         href={PublicRoutes.CHANNEL(video.channel.slug)}
       >
         {video.channel.title}

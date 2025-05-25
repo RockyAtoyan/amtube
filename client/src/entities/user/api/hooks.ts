@@ -1,19 +1,19 @@
-import { PublicRoutes } from "@/shared/config/routes/public.routes"
-import { useAuthStore } from "@/shared/store/auth.store"
+import { PublicRoutes } from "@/shared/config/routes/public.routes";
+import { useAuthStore } from "@/shared/store/auth.store";
 
-import { useEffect } from "react"
-import toast from "react-hot-toast"
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 
 import {
   AddVideoToHistoryDto,
   BanUserDto,
   UpdateUserDto,
   UsersApi,
-} from "./api"
+} from "./api";
 
 export const useSignUp = () => {
   const router = useRouter();
@@ -154,8 +154,13 @@ export const useAddVideoToHistory = () => {
 };
 
 export const useToggleChannelSubscribe = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: toggleChannelSubscribe, ...rest } = useMutation({
     mutationFn: UsersApi.toggleChannelSubscribe,
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
   });
 
   return { toggleChannelSubscribe, ...rest };

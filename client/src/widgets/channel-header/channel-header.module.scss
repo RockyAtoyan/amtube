@@ -1,0 +1,9 @@
+.description {
+  @apply line-clamp-1;
+  max-width: 12.5rem;
+  font-size: 0.875rem;
+  a {
+    @apply underline;
+    color: oklch(70.7% 0.165 254.624);
+  }
+}
