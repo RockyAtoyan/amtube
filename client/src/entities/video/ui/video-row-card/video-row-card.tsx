@@ -4,20 +4,31 @@ import { PublicRoutes } from "@/shared/config/routes/public.routes";
 import { cn, formatDateRelative, formatNumber } from "@/shared/lib";
 import { Skeleton } from "@/shared/ui/skeleton";
 
+
+
 import { FC } from "react";
+
+
 
 import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+
+
 import { VideoWithRelations } from "../../model/video-with-relations";
 import VideoRowCardActions from "./video-row-card-actions";
 
+
+
+
+
 interface Props {
   video: VideoWithRelations;
+  editPlaylistId?: string;
 }
 
-const VideoRowCard: FC<Props> = ({ video }) => {
+const VideoRowCard: FC<Props> = ({ video, editPlaylistId }) => {
   return (
     <div className="w-full rounded-lg overflow-hidden flex gap-3 relative">
       <Link
@@ -63,7 +74,7 @@ const VideoRowCard: FC<Props> = ({ video }) => {
         </div>
       </div>
       <div className="absolute top-0 right-0">
-        <VideoRowCardActions video={video} />
+        <VideoRowCardActions editPlaylistId={editPlaylistId} video={video} />
       </div>
     </div>
   );

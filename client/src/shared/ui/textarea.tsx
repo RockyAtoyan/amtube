@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState } from "react"
 
-import { cn } from "../lib";
+import { cn } from "../lib"
 
 interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -44,7 +44,8 @@ const Textarea: React.FC<TextareaProps> = ({
       <textarea
         className={cn(
           `relative block w-full px-3 py-2 border border-border rounded-md shadow-sm outline-none focus:border-accent-secondary placeholder-transparent`,
-          textareaRef.current?.value && "border-accent-secondary",
+          (isFocused || textareaRef.current?.value) &&
+            "border-accent-secondary",
           error && "border-red-500",
           className,
         )}
@@ -61,6 +62,9 @@ const Textarea: React.FC<TextareaProps> = ({
         ref={(ref) => {
           textareaRef.current = ref;
           props.ref?.(ref);
+          if (textareaRef.current?.value) {
+            setIsFocused(true)
+          };
         }}
       />
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}

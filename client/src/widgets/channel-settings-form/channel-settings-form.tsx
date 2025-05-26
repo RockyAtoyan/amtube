@@ -156,9 +156,6 @@ const ChannelSettingsForm = () => {
           <Button
             type="submit"
             disabled={loading}
-            onClick={() => {
-              handleSubmit(onSubmit);
-            }}
           >
             Publish
           </Button>

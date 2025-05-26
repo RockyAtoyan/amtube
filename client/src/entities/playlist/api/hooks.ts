@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Playlist } from "../model/playlist";
@@ -38,6 +40,11 @@ export const useCreatePlaylist = (onSuccess?: Function) => {
     mutationFn: PlaylistsApi.create,
     onSuccess(data, variables, context) {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({
+        //@ts-ignore
+        queryKey: ["channel", data?.channel?.slug],
+      });
+      !onSuccess && toast.success(`Created playlist "${data.title}"!`);
       onSuccess?.(data);
     },
     onError(error) {},
@@ -65,8 +72,12 @@ export const useToggleVideoToPlaylist = (
       PlaylistsApi.toggleVideoToPlaylist(payload.id, payload.dto),
     onSuccess(data, variables, context) {
       queryClient.invalidateQueries({
-        queryKey: ["trending-videos", "profile"],
+        queryKey: ["trending-videos"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["playlist", data.id] });
       onSuccess?.(data);
     },
   });
@@ -75,17 +86,41 @@ export const useToggleVideoToPlaylist = (
 };
 
 export const useUpdatePlaylist = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: updatePlaylist, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: UpdatePlaylistDto }) =>
       PlaylistsApi.update(payload.id, payload.dto),
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({
+        //@ts-ignore
+        queryKey: ["channel", data?.channel?.slug],
+      });
+      queryClient.invalidateQueries({ queryKey: ["playlist", data.id] });
+    },
   });
 
   return { updatePlaylist, ...rest };
 };
 
 export const useDeletePlaylist = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: deletePlaylist, ...rest } = useMutation({
     mutationFn: (id: string) => PlaylistsApi.delete(id),
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({
+        //@ts-ignore
+        queryKey: ["channel", data?.channel?.slug],
+      });
+      queryClient.invalidateQueries({ queryKey: ["playlist", data.id] });
+    },
   });
 
   return { deletePlaylist, ...rest };

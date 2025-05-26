@@ -89,6 +89,7 @@ export class PlaylistsController {
   }
 
   @Auth()
+  @UseInterceptors(FileInterceptor(''))
   @Patch(':id')
   update(
     @Param('id') id: string,

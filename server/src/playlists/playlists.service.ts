@@ -1,3 +1,4 @@
+import { findVideoIncludeConfig } from './../videos/videos.config';
 import {
   BadRequestException,
   Injectable,
@@ -39,6 +40,9 @@ export class PlaylistsService {
           ...createPlaylistDto,
           id: playlistId,
           thumbnailUrl,
+        },
+        include: {
+          channel: true,
         },
       });
 
@@ -119,7 +123,7 @@ export class PlaylistsService {
         include: {
           user: true,
           channel: true,
-          videos: { include: { channel: true } },
+          videos: { include: findVideoIncludeConfig },
         },
       });
       return playlist;
@@ -173,9 +177,13 @@ export class PlaylistsService {
       const playlist = await this.dbService.playlist.update({
         where: { id },
         data: updatePlaylistDto,
+        include: {
+          channel: true,
+        },
       });
       return playlist;
     } catch (error) {
+      console.log(error);
       throw new BadRequestException();
     }
   }
@@ -184,6 +192,9 @@ export class PlaylistsService {
     try {
       const playlist = await this.dbService.playlist.delete({
         where: { id },
+        include: {
+          channel: true,
+        },
       });
       return playlist;
     } catch (error) {

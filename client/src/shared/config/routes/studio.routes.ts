@@ -6,8 +6,13 @@ export class StudioRoutes {
     return `/studio/videos/${videoId}`;
   }
   static readonly PLAYLISTS = "/studio/playlists";
+  static readonly CREATE_PLAYLIST = this.PLAYLISTS + "/create";
+
   static PLAYLIST(playlistId: string) {
-    return `/studio/playlists/${playlistId}`;
+    return this.PLAYLISTS + `/${playlistId}`;
+  }
+  static EDIT_PLAYLIST(playlistId: string) {
+    return this.PLAYLIST(playlistId) + "/edit";
   }
   static readonly CHANNEL = "/studio/channel";
   static readonly PROFILE = "/studio/profile";

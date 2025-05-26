@@ -1,6 +1,6 @@
-import { Optional } from '@nestjs/common';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import { Optional } from '@nestjs/common'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty, MaxLength, MinLength } from 'class-validator'
 
 export class CreatePlaylistDto {
   @ApiProperty()

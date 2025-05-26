@@ -1,4 +1,5 @@
-import { cn, getChannelLogoLetters } from "@/shared/lib";
+import { PlaylistWithRelations } from "@/entities/playlist/model/playlist-with-relations";
+import { cn } from "@/shared/lib";
 import { useAuthStore } from "@/shared/store/auth.store";
 import Badge from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -9,51 +10,53 @@ import { FC } from "react";
 import Image from "next/image";
 
 interface Props {
-  avatarFile: File | null;
-  setAvatarFile: (file: File | null) => void;
+  playlist: PlaylistWithRelations;
+  thumbnailFile: File | null;
+  setThumbnailFile: (file: File | null) => void;
 }
 
-const ChannelSettingsAvatar: FC<Props> = ({ avatarFile, setAvatarFile }) => {
+const PlaylistEditThumbnail: FC<Props> = ({
+  playlist,
+  thumbnailFile,
+  setThumbnailFile,
+}) => {
   const { user } = useAuthStore();
 
   return (
     <div>
-      <p className="text-lg">Channel's Avatar</p>
-      <p className="text-sm text-primary/70 mb-5">
-        Avatar is shown next to your videos or comments on YouTube, for example.
-      </p>
+      <p className="text-lg mb-5">Playlist's Thumbnail</p>
       <div className="flex gap-5">
         <div className="h-50 flex-shrink-0 aspect-video rounded-md overflow-hidden border border-border flex items-center justify-center">
           <div
             className={cn(
-              "block w-1/3 aspect-square rounded-[15%] overflow-hidden flex items-center justify-center",
-              !avatarFile && "bg-primary",
+              "block w-full aspect-square rounded-[15%] overflow-hidden flex items-center justify-center",
+              !thumbnailFile && "bg-primary",
             )}
           >
-            {avatarFile && (
+            {thumbnailFile && (
               <Image
-                src={URL.createObjectURL(avatarFile)}
-                alt="Avatar"
-                width={100}
-                height={100}
+                src={URL.createObjectURL(thumbnailFile)}
+                alt="Thumbnail"
+                width={224}
+                height={126}
                 className="w-full h-full object-cover object-center"
               />
             )}
-            {!avatarFile && user?.channel?.avatarUrl && (
+            {!thumbnailFile && playlist?.thumbnailUrl && (
               <Image
                 src={
                   `${process.env.NEXT_PUBLIC_API_URL}/uploads` +
-                  user.channel.avatarUrl
+                  playlist.thumbnailUrl
                 }
                 alt="Avatar"
-                width={100}
-                height={100}
+                width={224}
+                height={126}
                 className="w-full h-full object-cover object-center"
               />
             )}
-            {!avatarFile && !user?.channel?.avatarUrl && (
-              <span className="font-semibold text-6xl text-background">
-                {getChannelLogoLetters(user!.channel!.title)}
+            {!thumbnailFile && !playlist?.thumbnailUrl && (
+              <span className="font-semibold text-base text-background">
+                No thumbnail.
               </span>
             )}
           </div>
@@ -62,22 +65,22 @@ const ChannelSettingsAvatar: FC<Props> = ({ avatarFile, setAvatarFile }) => {
           <div className="flex items-center gap-3">
             <FileInput
               accept="image/*"
-              placeholder="Select avatar"
-              onFileSelect={(file) => setAvatarFile(file)}
+              placeholder="Select thumbnail"
+              onFileSelect={(file) => setThumbnailFile(file)}
               className="h-10 py-2 px-4"
             />
-            {avatarFile && (
+            {thumbnailFile && (
               <Button
-                onClick={() => setAvatarFile(null)}
+                onClick={() => setThumbnailFile(null)}
                 type="button"
                 variant="secondary"
               >
-                Clear avatar
+                Clear thumbnail
               </Button>
             )}
           </div>
           <Badge className="mt-4" variant="info">
-            The image should preferably be 1 by 1
+            The image should preferably be 16 by 9
           </Badge>
         </div>
       </div>
@@ -85,4 +88,4 @@ const ChannelSettingsAvatar: FC<Props> = ({ avatarFile, setAvatarFile }) => {
   );
 };
 
-export default ChannelSettingsAvatar;
+export default PlaylistEditThumbnail;

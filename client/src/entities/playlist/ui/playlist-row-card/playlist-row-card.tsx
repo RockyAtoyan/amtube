@@ -1,5 +1,3 @@
-"use client";
-
 import { PublicRoutes } from "@/shared/config/routes/public.routes";
 import { cn, formatNumber } from "@/shared/lib";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -12,13 +10,14 @@ import Link from "next/link";
 
 import { PlaylistWithRelations } from "../../model/playlist-with-relations";
 import styles from "../playlist.module.scss";
+import PlaylistRowCardActions from "./playlist-row-card-actions";
 
 interface Props {
   playlist: PlaylistWithRelations;
-  isOnChannelPage?: boolean;
+  isInStudio?: boolean;
 }
 
-const PlaylistCard: FC<Props> = ({ playlist, isOnChannelPage }) => {
+const PlaylistRowCard: FC<Props> = ({ playlist, isInStudio }) => {
   const videosWithThumbnails = playlist?.videos?.filter(
     (video) => video.thumbnailUrl,
   );
@@ -32,11 +31,11 @@ const PlaylistCard: FC<Props> = ({ playlist, isOnChannelPage }) => {
       : null;
 
   return (
-    <div className="w-full rounded-lg pt-2">
+    <div className="w-full rounded-lg flex gap-3 relative pt-2">
       <Link
         href={PublicRoutes.PLAYLIST(playlist)}
         className={cn(
-          "block rounded-lg w-full aspect-video relative user-select-none before:bg-gray-300 dark:before:bg-neutral-500 after:bg-gray-400 dark:after:bg-neutral-700",
+          "block rounded-lg w-full max-w-[20rem] aspect-video relative user-select-none before:bg-gray-300 dark:before:bg-neutral-500 after:bg-gray-400 dark:after:bg-neutral-700",
           styles.card,
         )}
         title={playlist.title}
@@ -59,27 +58,36 @@ const PlaylistCard: FC<Props> = ({ playlist, isOnChannelPage }) => {
           </span>
         </div>
       </Link>
-      <Link
-        href={PublicRoutes.PLAYLIST(playlist)}
-        className="mt-2 text-base text-primary line-clamp-2 overflow-hidden"
-        onClick={(event) => !playlist?.videos?.length && event.preventDefault()}
-      >
-        {playlist.title}
-      </Link>
-      {!isOnChannelPage && playlist?.channel?.slug && (
+      <div>
         <Link
-          className="line-clamp-1 mt-1 text-sm text-primary/70 transition-colors hover:text-primary/90"
-          href={PublicRoutes.CHANNEL(playlist?.channel?.slug)}
+          href={PublicRoutes.PLAYLIST(playlist)}
+          className="mt-2 text-lg text-primary line-clamp-2 overflow-hidden"
+          onClick={(event) =>
+            !playlist?.videos?.length && event.preventDefault()
+          }
         >
-          {playlist.channel.title}
+          {playlist.title}
         </Link>
-      )}
+        <div className="mt-2 flex items-center justify-between gap-4 text-sm text-primary/60">
+          {playlist?.channel && (
+            <Link
+              className="line-clamp-1 max-w-56 text-sm text-primary/70 transition-colors hover:text-primary/90"
+              href={PublicRoutes.CHANNEL(playlist?.channel?.slug)}
+            >
+              {playlist.channel.title}
+            </Link>
+          )}
+        </div>
+      </div>
+      <div className="absolute top-0 right-0">
+        <PlaylistRowCardActions playlist={playlist} isInStudio={isInStudio} />
+      </div>
     </div>
   );
 };
 
-export const VideoCardSkeleton = () => {
-  return <Skeleton className="w-full aspect-video" />;
+export const PlaylistRowCardSkeleton = () => {
+  return <Skeleton className="w-full max-w-[20rem] aspect-video" />;
 };
 
-export default PlaylistCard;
+export default PlaylistRowCard;

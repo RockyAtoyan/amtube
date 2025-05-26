@@ -1,30 +1,39 @@
-import { useToggleVideoToPlaylist } from "@/entities/playlist/api/hooks";
-import CreatePlaylistForm from "@/features/create-playlist-form/create-playlist-form";
-import { PublicRoutes } from "@/shared/config/routes/public.routes";
-import { cn } from "@/shared/lib";
-import { useAuthStore } from "@/shared/store/auth.store";
-import { Button } from "@/shared/ui/button";
-import { Modal } from "@/shared/ui/modal";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
+import { useToggleVideoToPlaylist } from "@/entities/playlist/api/hooks"
+import CreatePlaylistForm from "@/features/create-playlist-form/create-playlist-form"
+import { PublicRoutes } from "@/shared/config/routes/public.routes"
+import { cn } from "@/shared/lib"
+import { useAuthStore } from "@/shared/store/auth.store"
+import { Button } from "@/shared/ui/button"
+import { Modal } from "@/shared/ui/modal"
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover"
+import Separator from "@/shared/ui/separator"
 
-import { FC, useState } from "react";
-import toast from "react-hot-toast";
+import { FC, useState } from "react"
+import toast from "react-hot-toast"
 
-import { Bookmark, Check, Clock, EllipsisVertical } from "lucide-react";
-import Link from "next/link";
+import {
+  Bookmark,
+  Check,
+  CircleX,
+  Clock,
+  EllipsisVertical,
+} from "lucide-react"
+import Link from "next/link"
 
-import { VideoWithRelations } from "../../model/video-with-relations";
+import { VideoWithRelations } from "../../model/video-with-relations"
 
 interface Props {
   video: VideoWithRelations;
+  editPlaylistId?: string;
 }
 
-const VideoRowCardActions: FC<Props> = ({ video }) => {
+const VideoRowCardActions: FC<Props> = ({ video, editPlaylistId }) => {
   const { user } = useAuthStore();
 
   const { toggleVideoToPlaylist, isPending } = useToggleVideoToPlaylist();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isAddingToChannel, setIsAddingToChannel] = useState(false);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
 
   return (
@@ -42,7 +51,7 @@ const VideoRowCardActions: FC<Props> = ({ video }) => {
                 <Link href={PublicRoutes.SIGN_IN}>You have to sign in!</Link>
               </Button>
             )}
-            {user && (
+            {user && !editPlaylistId && (
               <>
                 <Button
                   className="flex items-center gap-2"
@@ -72,6 +81,7 @@ const VideoRowCardActions: FC<Props> = ({ video }) => {
                       );
                     } else {
                       setIsOpen(true);
+                      setIsAddingToChannel(false);
                       setIsCreatingPlaylist(false);
                     }
                   }}
@@ -85,17 +95,62 @@ const VideoRowCardActions: FC<Props> = ({ video }) => {
                 >
                   <Bookmark /> Add to playlist
                 </Button>
+                {user?.channel && (
+                  <>
+                    <Separator />
+                    <Button
+                      className="flex items-center gap-2"
+                      variant={"outline"}
+                      onClick={() => {
+                        setIsAddingToChannel(true);
+                        setIsOpen(true);
+                      }}
+                    >
+                      Add to channel's playlist
+                    </Button>
+                  </>
+                )}
               </>
+            )}
+            {user && editPlaylistId && (
+              <Button
+                className="flex items-center gap-2"
+                variant={"destructive"}
+                onClick={() => {
+                  toggleVideoToPlaylist(
+                    {
+                      id: editPlaylistId,
+                      dto: {
+                        isAdded: true,
+                        playlistId: editPlaylistId,
+                        videoId: video.id,
+                      },
+                    },
+                    {
+                      onSuccess(data, variables, context) {
+                        toast.success(`Removed from playlist "${data.title}"!`);
+                      },
+                    },
+                  );
+                }}
+              >
+                <CircleX /> Remove
+              </Button>
             )}
           </div>
         </PopoverContent>
       </Popover>
-      {user && (
+      {user && !editPlaylistId && (
         <Modal
           isOpen={isOpen}
           onOpenChange={(value) => {
-            if (!value) setIsCreatingPlaylist(false);
             setIsOpen(value);
+            if (!value) {
+              setTimeout(() => {
+               setIsCreatingPlaylist(false);
+               setIsAddingToChannel(false);
+             }, 100)
+            }
           }}
           className={cn(!isCreatingPlaylist && "max-w-[18rem]")}
         >
@@ -103,7 +158,7 @@ const VideoRowCardActions: FC<Props> = ({ video }) => {
             title={!isCreatingPlaylist ? "Choose playlist" : "Create playlist"}
           />
           <Modal.Content>
-            {!isCreatingPlaylist && (
+            {!isCreatingPlaylist && !isAddingToChannel && (
               <div className="flex flex-col gap-3">
                 {!!user?.playlists?.length ? (
                   <div className="flex flex-col gap-3 items-start max-h-[11.25rem] overflow-auto">
@@ -165,6 +220,63 @@ const VideoRowCardActions: FC<Props> = ({ video }) => {
                 </Button>
               </div>
             )}
+            {!isCreatingPlaylist && isAddingToChannel && (
+              <div className="flex flex-col gap-3">
+                {!!user?.channel?.playlists?.length ? (
+                  <div className="flex flex-col gap-3 items-start max-h-[11.25rem] overflow-auto">
+                    {user.channel.playlists.map((playlist) => {
+                      const isIn = !!video?.playlists?.find(
+                        (pl) => pl.id === playlist.id,
+                      );
+                      return (
+                        <Button
+                          variant="link"
+                          key={playlist.id}
+                          onClick={() => {
+                            toggleVideoToPlaylist(
+                              {
+                                id: playlist.id,
+                                dto: {
+                                  isAdded: isIn,
+                                  playlistId: playlist.id,
+                                  videoId: video.id,
+                                },
+                              },
+                              {
+                                onSuccess(data, variables, context) {
+                                  toast.success(
+                                    !isIn
+                                      ? `Added to playlist "${data.title}"!`
+                                      : `Removed from playlist "${data.title}"!`,
+                                  );
+                                },
+                              },
+                            );
+                          }}
+                        >
+                          <span
+                            className={cn(
+                              "flex flex-shrink-0 items-center justify-center mr-3 w-6 h-6 border border-primary rounded text-background",
+                              isIn && "border-accent bg-accent",
+                            )}
+                          >
+                            {isIn && <Check />}
+                          </span>
+                          <span className="line-clamp-1 max-w-[10rem]">
+                            {playlist.title}
+                          </span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="my-6">
+                    {" "}
+                    Your channel do not has any playlists!
+                  </p>
+                )}
+              </div>
+            )}
             {isCreatingPlaylist && (
               <CreatePlaylistForm
                 loading={isPending}
@@ -181,6 +293,7 @@ const VideoRowCardActions: FC<Props> = ({ video }) => {
                     {
                       onSuccess(data, variables, context) {
                         setIsOpen(false);
+                        setIsAddingToChannel(false);
                         setIsCreatingPlaylist(false);
                         toast.success(`Added to playlist "${data.title}"!`);
                       },

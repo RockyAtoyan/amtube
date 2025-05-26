@@ -1,8 +1,11 @@
+"use client";
+
 import { CreatePlaylistResponse } from "@/entities/playlist/api/api";
 import { useCreatePlaylist } from "@/entities/playlist/api/hooks";
 import { useAuthStore } from "@/shared/store/auth.store";
 import { Button } from "@/shared/ui/button";
 import Input from "@/shared/ui/input";
+import { Loader } from "@/shared/ui/loader";
 import Textarea from "@/shared/ui/textarea";
 
 import { FC } from "react";
@@ -23,10 +26,15 @@ type FormDataType = yup.InferType<typeof schema>;
 interface Props {
   onSuccess?: (data: CreatePlaylistResponse) => void;
   loading?: boolean;
+  isForChannel?: boolean;
 }
 
-const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
-  const { user } = useAuthStore();
+const CreatePlaylistForm: FC<Props> = ({
+  onSuccess,
+  loading,
+  isForChannel,
+}) => {
+  const { user, isPending: isAuthPending } = useAuthStore();
 
   const { createPlaylist, isPending } = useCreatePlaylist(onSuccess);
 
@@ -35,6 +43,7 @@ const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
     handleSubmit,
     formState: { errors },
     setError,
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -56,11 +65,13 @@ const CreatePlaylistForm: FC<Props> = ({ onSuccess, loading }) => {
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("userId", user.id);
-    // formData.append("channelId", user.channel.id);
+    isForChannel && formData.append("channelId", user.channel.id);
     createPlaylist(formData);
+    reset();
   };
 
-  if (!user) return <p>Have no access</p>;
+  if (!user && isAuthPending) return <Loader />;
+  if (!user && !isAuthPending) return <p>Have no access</p>;
 
   return (
     <div>
