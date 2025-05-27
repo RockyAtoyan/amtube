@@ -8,7 +8,7 @@ interface Props {
   tags: string[];
   setTags: (tags: string[]) => void;
 }
-const UploadVideoTagsInput: FC<Props> = ({ tags, setTags }) => {
+const VideoTagsInput: FC<Props> = ({ tags, setTags }) => {
   const [tagInput, setTagInput] = useState("");
 
   const removeTag = (index: number) => {
@@ -52,4 +52,4 @@ const UploadVideoTagsInput: FC<Props> = ({ tags, setTags }) => {
   );
 };
 
-export default UploadVideoTagsInput;
+export default VideoTagsInput;

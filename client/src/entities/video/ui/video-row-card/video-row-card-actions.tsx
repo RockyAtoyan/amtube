@@ -1,15 +1,16 @@
-import { useToggleVideoToPlaylist } from "@/entities/playlist/api/hooks"
-import CreatePlaylistForm from "@/features/create-playlist-form/create-playlist-form"
-import { PublicRoutes } from "@/shared/config/routes/public.routes"
-import { cn } from "@/shared/lib"
-import { useAuthStore } from "@/shared/store/auth.store"
-import { Button } from "@/shared/ui/button"
-import { Modal } from "@/shared/ui/modal"
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover"
-import Separator from "@/shared/ui/separator"
+import { useToggleVideoToPlaylist } from "@/entities/playlist/api/hooks";
+import CreatePlaylistForm from "@/features/create-playlist-form/create-playlist-form";
+import { PublicRoutes } from "@/shared/config/routes/public.routes";
+import { StudioRoutes } from "@/shared/config/routes/studio.routes";
+import { cn } from "@/shared/lib";
+import { useAuthStore } from "@/shared/store/auth.store";
+import { Button } from "@/shared/ui/button";
+import { Modal } from "@/shared/ui/modal";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
+import Separator from "@/shared/ui/separator";
 
-import { FC, useState } from "react"
-import toast from "react-hot-toast"
+import { FC, useState } from "react";
+import toast from "react-hot-toast";
 
 import {
   Bookmark,
@@ -17,17 +18,22 @@ import {
   CircleX,
   Clock,
   EllipsisVertical,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 
-import { VideoWithRelations } from "../../model/video-with-relations"
+import { VideoWithRelations } from "../../model/video-with-relations";
 
 interface Props {
   video: VideoWithRelations;
   editPlaylistId?: string;
+  isInStudio?: boolean;
 }
 
-const VideoRowCardActions: FC<Props> = ({ video, editPlaylistId }) => {
+const VideoRowCardActions: FC<Props> = ({
+  video,
+  editPlaylistId,
+  isInStudio,
+}) => {
   const { user } = useAuthStore();
 
   const { toggleVideoToPlaylist, isPending } = useToggleVideoToPlaylist();
@@ -53,6 +59,16 @@ const VideoRowCardActions: FC<Props> = ({ video, editPlaylistId }) => {
             )}
             {user && !editPlaylistId && (
               <>
+                {isInStudio && (
+                  <>
+                    <Button asChild>
+                      <Link href={StudioRoutes.EDIT_VIDEO(video.id)}>
+                        Edit video
+                      </Link>
+                    </Button>
+                    <Separator />
+                  </>
+                )}
                 <Button
                   className="flex items-center gap-2"
                   variant={"outline"}
@@ -147,9 +163,9 @@ const VideoRowCardActions: FC<Props> = ({ video, editPlaylistId }) => {
             setIsOpen(value);
             if (!value) {
               setTimeout(() => {
-               setIsCreatingPlaylist(false);
-               setIsAddingToChannel(false);
-             }, 100)
+                setIsCreatingPlaylist(false);
+                setIsAddingToChannel(false);
+              }, 100);
             }
           }}
           className={cn(!isCreatingPlaylist && "max-w-[18rem]")}

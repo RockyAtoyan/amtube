@@ -1,9 +1,12 @@
 export class StudioRoutes {
   static readonly STUDIO_HOME = "/studio";
   static readonly VIDEO_UPLOAD = "/studio/upload";
-  static readonly VIDEOS = "/studio/videos";
+  static readonly VIDEOS = "/studio/video";
   static VIDEO(videoId: string) {
-    return `/studio/videos/${videoId}`;
+    return `/studio/video/${videoId}`;
+  }
+  static EDIT_VIDEO(videoId: string) {
+    return this.VIDEO(videoId) + "/edit";
   }
   static readonly PLAYLISTS = "/studio/playlists";
   static readonly CREATE_PLAYLIST = this.PLAYLISTS + "/create";

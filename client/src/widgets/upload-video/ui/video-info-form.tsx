@@ -1,3 +1,4 @@
+import VideoTagsInput from "@/features/video-tags-input/video-tags-input";
 import Badge from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import HtmlEditor from "@/shared/ui/html-editor/html-editor";
@@ -9,7 +10,6 @@ import { Control, Controller, UseFormReturn } from "react-hook-form";
 import { Loader2, Upload } from "lucide-react";
 
 import { FormValues } from "../use-upload-video";
-import UploadVideoTagsInput from "./upload-video-tags-input";
 import UploadVideoThumbnailInput from "./upload-video-thumbnail-input";
 
 interface Props {
@@ -88,7 +88,7 @@ const VideoInfoForm: FC<Props> = ({
                 To add tags, press enter after each tag
               </Badge>
               <div className="mt-1">
-                <UploadVideoTagsInput tags={tags} setTags={setTags} />
+                <VideoTagsInput tags={tags} setTags={setTags} />
               </div>
             </div>
             <div className="pl-8">

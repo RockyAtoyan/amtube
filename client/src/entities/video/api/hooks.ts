@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useInView } from "react-intersection-observer";
 
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { UpdateVideoDto, VideosApi } from "./api";
 
@@ -138,14 +143,23 @@ export const useFindSimilarVideos = (
 };
 
 export const useUpdateVideo = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: updateVideo, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: UpdateVideoDto }) =>
       VideosApi.update(payload.id, payload.dto),
     onError: () => {
       toast.error("An error occurred during uploading. Try again!");
     },
-    onSuccess: () => {
-      toast.success("Video updated successfully!");
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({
+        //@ts-ignore
+        queryKey: ["channel", data?.channel?.slug],
+      });
+      queryClient.invalidateQueries({ queryKey: ["video", data.id] });
     },
   });
 
@@ -153,10 +167,22 @@ export const useUpdateVideo = () => {
 };
 
 export const useDeleteVideo = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: deleteVideo, ...rest } = useMutation({
     mutationFn: (id: string) => VideosApi.delete(id),
     onError: () => {
       toast.error("An error occurred during deleting. Try again!");
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({
+        //@ts-ignore
+        queryKey: ["channel", data?.channel?.slug],
+      });
+      queryClient.invalidateQueries({ queryKey: ["video", data.id] });
     },
   });
 

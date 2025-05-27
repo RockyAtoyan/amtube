@@ -246,12 +246,11 @@ export class VideosService {
           },
           comments: {
             include: {
-              ...findVideoIncludeConfig,
+              likes: true,
+              dislikes: true,
               answers: {
                 include: { likes: true, dislikes: true, to: true, user: true },
               },
-              likes: true,
-              dislikes: true,
               user: true,
             },
           },
@@ -259,10 +258,12 @@ export class VideosService {
           dislikes: true,
           views: true,
           resolutions: true,
+          tags: true,
         },
       });
       return video;
     } catch (error) {
+      console.log(error);
       throw new NotFoundException();
     }
   }
@@ -380,6 +381,9 @@ export class VideosService {
               }
             : {},
         },
+        include: {
+          channel: true,
+        },
       });
       return video;
     } catch (error) {
@@ -391,6 +395,9 @@ export class VideosService {
     try {
       const video = await this.dbService.video.delete({
         where: { id },
+        include: {
+          channel: true,
+        },
       });
       const job = await this.videoQueue.add(DELETE_VIDEO_JOB_NAME, {
         videoFileName: video.publicId,

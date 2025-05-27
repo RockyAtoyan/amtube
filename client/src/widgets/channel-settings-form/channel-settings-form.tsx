@@ -211,7 +211,7 @@ const ChannelSettingsForm = () => {
             render={({ field }) => {
               return (
                 <HtmlEditor
-                  placeholder="Video's description"
+                  placeholder="Channel's description"
                   value={field.value}
                   onChange={(value) => field.onChange(value)}
                 />

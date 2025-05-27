@@ -8,9 +8,10 @@ import { FC } from "react";
 interface Props {
   videos: VideoWithRelations[];
   editPlaylistId?: string;
+  isInStudio?: boolean;
 }
 
-const VideoRowSheet: FC<Props> = ({ videos, editPlaylistId }) => {
+const VideoRowSheet: FC<Props> = ({ videos, editPlaylistId, isInStudio }) => {
   return (
     <div className="flex flex-col gap-8">
       {videos.map((video) => (
@@ -18,6 +19,7 @@ const VideoRowSheet: FC<Props> = ({ videos, editPlaylistId }) => {
           key={video.publicId}
           editPlaylistId={editPlaylistId}
           video={video}
+          isInStudio={isInStudio}
         />
       ))}
     </div>
