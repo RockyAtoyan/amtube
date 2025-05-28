@@ -1,17 +1,17 @@
 "use client";
 
-import { useGetChannelBySlug } from "@/entities/channel/api/hooks";
+import { useGetChannelBySlug } from "@/entities/channel/api/hooks"
 import PlaylistsRowSheet, {
   PlaylistsRowSkeletonSheet,
-} from "@/features/playlists-row-sheet/playlists-row-sheet";
-import { useAuthStore } from "@/shared/store/auth.store";
+} from "@/features/playlists-row-sheet/playlists-row-sheet"
+import { useAuthStore } from "@/shared/store/auth.store"
 
 const ChannelPlaylists = () => {
   const { user, isPending } = useAuthStore();
 
   const { channel, isLoading } = useGetChannelBySlug(user?.channel?.slug || "");
 
-  const loading = !user || !channel || isLoading || isPending;
+  const loading = !user || isLoading || isPending;
 
   return (
     <div>
@@ -19,7 +19,7 @@ const ChannelPlaylists = () => {
       {!loading && !!channel?.playlists?.length && (
         <PlaylistsRowSheet isInStudio playlists={channel.playlists} />
       )}
-      {!loading && !channel?.playlists.length && (
+      {!loading && !channel?.playlists?.length && (
         <p className="text-lg">There are no playlists!</p>
       )}
     </div>

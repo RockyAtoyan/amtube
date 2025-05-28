@@ -184,9 +184,6 @@ const ChannelSettingsForm = () => {
             error={errors.title?.message}
             {...register("title")}
           />
-          {errors.title?.message && (
-            <p className="mt-2 text-sm text-red-600">{errors.title.message}</p>
-          )}
         </div>
         <div className="mt-5">
           <p className="text-lg">Channel's Slug</p>
@@ -199,9 +196,6 @@ const ChannelSettingsForm = () => {
             error={errors.title?.message}
             {...register("slug")}
           />
-          {errors.slug?.message && (
-            <p className="mt-2 text-sm text-red-600">{errors.slug.message}</p>
-          )}
         </div>
         <div className="mt-5">
           <p className="text-lg mb-5">Channel's Description</p>

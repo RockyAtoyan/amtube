@@ -34,8 +34,8 @@ export interface CreateUserDto {
 }
 export interface CreateUserResponse extends User {}
 
-export interface UpdateUserDto extends Partial<CreateUserDto> {}
-export type UpdateUserResponse = User;
+export interface UpdateUserDto extends Partial<User> {}
+export type UpdateUserResponse = UserWithRelations;
 
 export type FindOneUserResponse = UserWithRelations;
 

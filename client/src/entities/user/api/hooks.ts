@@ -1,19 +1,26 @@
 import { PublicRoutes } from "@/shared/config/routes/public.routes";
 import { useAuthStore } from "@/shared/store/auth.store";
 
+
+
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
+
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+
 
 import { useRouter } from "next/navigation";
 
-import {
-  AddVideoToHistoryDto,
-  BanUserDto,
-  UpdateUserDto,
-  UsersApi,
-} from "./api";
+
+
+import { AddVideoToHistoryDto, BanUserDto, UpdateUserDto, UsersApi } from "./api";
+
+
+
+
 
 export const useSignUp = () => {
   const router = useRouter();
@@ -128,9 +135,19 @@ export const useGetUserBySlug = (slug: string) => {
 };
 
 export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: updateUser, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: UpdateUserDto }) =>
       UsersApi.update(payload.id, payload.dto),
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["channel", data?.channel?.slug],
+      });
+    },
   });
 
   return { updateUser, ...rest };

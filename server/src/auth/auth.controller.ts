@@ -21,11 +21,12 @@ export class AuthController {
   ) {
     const res = await this.authService.activateAccount(token);
     if (!res.success) return res;
+    this.authService.removeTokensFromResponse(response);
     const redirectLink = process.env.CLIENT_URL;
     return redirectLink ? response.redirect(redirectLink) : { success: true };
   }
 
-  @Auth({ mustHaveAccess: true })
+  @Auth({ mustHaveAccess: true, withoutActivation: true })
   @Get('send-email')
   async sendActivateEmail(@Query('userId') userId: string) {
     return await this.authService.sendActivateEmail(userId);

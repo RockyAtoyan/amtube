@@ -150,11 +150,6 @@ const PlaylistEditForm: FC<Props> = ({ playlistId }) => {
               error={errors.title?.message}
               {...register("title")}
             />
-            {errors.title?.message && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.title.message}
-              </p>
-            )}
           </div>
           <div className="mt-5">
             <p className="text-lg mb-5">Playlist's Description</p>
@@ -163,12 +158,6 @@ const PlaylistEditForm: FC<Props> = ({ playlistId }) => {
               error={errors.description?.message || errors.root?.message}
               {...register("description")}
             />
-
-            {errors.description?.message && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.description.message}
-              </p>
-            )}
           </div>
         </div>
       </form>

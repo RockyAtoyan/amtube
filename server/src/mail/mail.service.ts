@@ -8,7 +8,7 @@ export class MailService {
   async sendActivationEmail(
     email: string,
     activationToken: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       const activationLink = `${process.env.HOST_URL}/auth/activate?token=${activationToken}`;
       await this.mailerService.sendMail({
@@ -17,7 +17,9 @@ export class MailService {
         text: `Для активации вашего аккаунта перейдите по ссылке: ${activationLink}`,
         html: `<b>Для активации вашего аккаунта перейдите по ссылке:</b> <a href="${activationLink}">${activationLink}</a>`,
       });
+      return true;
     } catch (err) {
+      return false;
     }
   }
 }

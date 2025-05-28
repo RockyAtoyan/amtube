@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import * as bcrypt from 'bcrypt';
 import { findVideoIncludeConfig } from 'src/videos/videos.config';
 import { DbService } from './../db/db.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -115,10 +116,17 @@ export class UsersService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
+    const updateDto: UpdateUserDto = {
+      ...dto,
+    };
+    if (dto.password) {
+      updateDto.password = bcrypt.hashSync(dto.password, 7);
+    }
     try {
       const user = await this.dbService.user.update({
         where: { id },
-        data: dto,
+        data: updateDto,
+        include: findUserIncludeConfig,
       });
       return user;
     } catch (error) {

@@ -151,8 +151,8 @@ export class AuthService {
       if (!user) throw new NotFoundException();
       const activationToken = this.generateActivationToken(user.id);
       if (!activationToken) throw new BadRequestException();
-      await this.mailService.sendActivationEmail(user.email, activationToken);
-      return { success: true };
+      const success = await this.mailService.sendActivationEmail(user.email, activationToken);
+      return { success };
     } catch {
       return { success: false };
     }

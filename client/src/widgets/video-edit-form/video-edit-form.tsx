@@ -213,9 +213,6 @@ const VideoEditForm: FC<Props> = ({ videoId }) => {
           error={errors.title?.message}
           {...register("title")}
         />
-        {errors.title?.message && (
-          <p className="mt-2 text-sm text-red-600">{errors.title.message}</p>
-        )}
       </div>
       <div className="mt-5">
         <p className="text-lg mb-5">Video's Description</p>
@@ -239,7 +236,7 @@ const VideoEditForm: FC<Props> = ({ videoId }) => {
         )}
       </div>
       <div className="mt-5">
-        <p className="text-lg mb-5">Video's Title</p>
+        <p className="text-lg mb-5">Video's Tags</p>
         <Badge variant="info">To add tags, press enter after each tag</Badge>
         <div className="mt-1">
           <VideoTagsInput tags={tags} setTags={setTags} />

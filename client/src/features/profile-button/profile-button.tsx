@@ -28,7 +28,9 @@ const ProfileButton: FC<Props> = ({ user }) => {
         >
           {user.avatarUrl && (
             <Image
-              src={user.avatarUrl}
+              src={
+                `${process.env.NEXT_PUBLIC_API_URL}/uploads` + user.avatarUrl
+              }
               alt={user.name}
               width={48}
               height={48}

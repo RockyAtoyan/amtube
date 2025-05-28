@@ -1,6 +1,5 @@
 import { VideoWithRelations } from "@/entities/video/model/video-with-relations";
 import { cn } from "@/shared/lib";
-import { useAuthStore } from "@/shared/store/auth.store";
 import Badge from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { FileInput } from "@/shared/ui/input";
@@ -27,8 +26,8 @@ const VideoEditThumbnail: FC<Props> = ({
         <div className="h-50 flex-shrink-0 aspect-video rounded-md overflow-hidden border border-border flex items-center justify-center">
           <div
             className={cn(
-              "block w-full aspect-square rounded-[15%] overflow-hidden flex items-center justify-center",
-              !thumbnailFile && "bg-primary",
+              "block w-full h-full aspect-square overflow-hidden flex items-center justify-center bg-secondary",
+              !thumbnailFile && !video?.thumbnailUrl && "bg-primary",
             )}
           >
             {thumbnailFile && (
@@ -37,7 +36,7 @@ const VideoEditThumbnail: FC<Props> = ({
                 alt="Thumbnail"
                 width={224}
                 height={126}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-contain object-center"
               />
             )}
             {!thumbnailFile && video?.thumbnailUrl && (
@@ -49,7 +48,7 @@ const VideoEditThumbnail: FC<Props> = ({
                 alt="Thumbnail"
                 width={224}
                 height={126}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-contain object-center"
               />
             )}
             {!thumbnailFile && !video?.thumbnailUrl && (
