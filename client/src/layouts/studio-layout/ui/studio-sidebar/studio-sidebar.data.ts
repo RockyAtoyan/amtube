@@ -20,11 +20,6 @@ interface ISidebarData {
 export const STUDIO_SIDEBAR_DATA: ISidebarData = {
   TOP: [
     {
-      label: "Dashboard",
-      href: StudioRoutes.STUDIO_HOME,
-      icon: Grid2X2,
-    },
-    {
       label: "Upload",
       href: StudioRoutes.VIDEO_UPLOAD,
       icon: Upload,
