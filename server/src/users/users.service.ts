@@ -86,7 +86,27 @@ export class UsersService {
           return [...vs, ...v.videos];
         }, [])
         .toSorted((v1, v2) => +v2.createdAt - +v1.createdAt);
+      return videos;
+    } catch (error) {
+      throw new NotFoundException();
+    }
+  }
 
+  async getUserLikedVideos(userId: string) {
+    try {
+      const videos = await this.dbService.video.findMany({
+        where: {
+          likes: {
+            some: {
+              id: userId,
+            },
+          },
+        },
+        include: findVideoIncludeConfig,
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
       return videos;
     } catch (error) {
       throw new NotFoundException();

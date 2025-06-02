@@ -16,14 +16,20 @@ import VideoRowCardActions from "./video-row-card-actions";
 interface Props {
   video: VideoWithRelations;
   editPlaylistId?: string;
+  fromPlaylistId?: string;
   isInStudio?: boolean;
 }
 
-const VideoRowCard: FC<Props> = ({ video, editPlaylistId, isInStudio }) => {
+const VideoRowCard: FC<Props> = ({
+  video,
+  editPlaylistId,
+  fromPlaylistId,
+  isInStudio,
+}) => {
   return (
     <div className="w-full rounded-lg overflow-hidden flex gap-3 relative">
       <Link
-        href={PublicRoutes.VIDEO(video.publicId)}
+        href={PublicRoutes.VIDEO(video.publicId, fromPlaylistId)}
         className="block rounded-lg w-full max-w-[20rem] aspect-video relative bg-secondary dark:bg-black user-select-none"
         title={video.title}
       >
@@ -45,7 +51,7 @@ const VideoRowCard: FC<Props> = ({ video, editPlaylistId, isInStudio }) => {
       </Link>
       <div>
         <Link
-          href={PublicRoutes.VIDEO(video.publicId)}
+          href={PublicRoutes.VIDEO(video.publicId, fromPlaylistId)}
           className="mt-2 text-lg text-primary line-clamp-2 overflow-hidden"
         >
           {video.title}

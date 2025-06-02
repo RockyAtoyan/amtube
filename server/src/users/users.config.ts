@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { findVideoIncludeConfig } from 'src/videos/videos.config';
 
 export const findUserIncludeConfig: Prisma.UserInclude = {
   channel: {
@@ -13,7 +14,7 @@ export const findUserIncludeConfig: Prisma.UserInclude = {
     include: {
       user: true,
       channel: true,
-      videos: { include: { channel: true } },
+      videos: { include: findVideoIncludeConfig },
     },
   },
 };

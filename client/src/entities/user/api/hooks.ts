@@ -1,26 +1,19 @@
 import { PublicRoutes } from "@/shared/config/routes/public.routes";
 import { useAuthStore } from "@/shared/store/auth.store";
 
-
-
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
-
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-
 
 import { useRouter } from "next/navigation";
 
-
-
-import { AddVideoToHistoryDto, BanUserDto, UpdateUserDto, UsersApi } from "./api";
-
-
-
-
+import {
+  AddVideoToHistoryDto,
+  BanUserDto,
+  UpdateUserDto,
+  UsersApi,
+} from "./api";
 
 export const useSignUp = () => {
   const router = useRouter();
@@ -199,4 +192,13 @@ export const useGetUserSubscribesVideos = () => {
   });
 
   return { subscribesVideos, ...rest };
+};
+
+export const useGetUserLikedVideos = () => {
+  const { data: likedVideos, ...rest } = useQuery({
+    queryKey: ["user-liked-videos"],
+    queryFn: UsersApi.getUserLikedVideos,
+  });
+
+  return { likedVideos, ...rest };
 };

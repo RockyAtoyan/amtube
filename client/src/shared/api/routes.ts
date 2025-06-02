@@ -200,6 +200,10 @@ export const ROUTES = {
       path: "/users/subscribes",
       method: "get",
     },
+    getUserLikedVideos: {
+      path: "/users/liked",
+      method: "get",
+    },
     update: {
       path: "/users",
       method: "patch",

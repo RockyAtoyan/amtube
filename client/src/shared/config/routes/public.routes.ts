@@ -8,7 +8,7 @@ export class PublicRoutes {
   static readonly LIBRARY = "/library";
   static readonly HISTORY = "/history";
   static readonly WATCH_LATER = "/watch-later";
-  static readonly LIKES = "/likes";
+  static readonly LIKES = "/liked";
   static readonly PLAYLISTS = "/playlists";
   static readonly SEND_FEEDBACK = "/feedback";
 
@@ -16,14 +16,14 @@ export class PublicRoutes {
     return `/c/${slug}`;
   }
 
-  static VIDEO(publicId: string) {
-    return `/v/${publicId}`;
+  static VIDEO(publicId: string, playlistId?: string) {
+    return `/v/${publicId}` + (playlistId ? `?list=${playlistId}` : "");
   }
 
   static PLAYLIST(playlist: PlaylistWithRelations) {
     const videoId = playlist?.videos[0]?.publicId;
     if (!videoId) return this.HOME;
-    return this.VIDEO(videoId) + `?list=${playlist.id}`;
+    return this.VIDEO(videoId, playlist.id);
   }
 
   static readonly SIGN_IN = "/sign-in";

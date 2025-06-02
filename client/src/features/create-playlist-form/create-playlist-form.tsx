@@ -48,7 +48,7 @@ const CreatePlaylistForm: FC<Props> = ({
     resolver: yupResolver(schema),
   });
   const onSubmit = (data: FormDataType) => {
-    if (!user || !user.channel?.id) {
+    if (!user) {
       setError("root", { message: "Unauthorized" });
       return;
     }
@@ -65,7 +65,9 @@ const CreatePlaylistForm: FC<Props> = ({
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("userId", user.id);
-    isForChannel && formData.append("channelId", user.channel.id);
+    isForChannel &&
+      user?.channel?.id &&
+      formData.append("channelId", user.channel.id);
     createPlaylist(formData);
     reset();
   };

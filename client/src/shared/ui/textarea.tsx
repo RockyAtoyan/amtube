@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useState } from "react"
+import React, { useRef, useState } from "react";
 
-import { cn } from "../lib"
+import { cn } from "../lib";
 
 interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -56,6 +56,7 @@ const Textarea: React.FC<TextareaProps> = ({
           props.onFocus?.(event);
         }}
         onBlur={(event) => {
+          console.log("blur");
           setIsFocused(false);
           props.onBlur?.(event);
         }}
@@ -63,8 +64,8 @@ const Textarea: React.FC<TextareaProps> = ({
           textareaRef.current = ref;
           props.ref?.(ref);
           if (textareaRef.current?.value) {
-            setIsFocused(true)
-          };
+            setIsFocused(true);
+          }
         }}
       />
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}

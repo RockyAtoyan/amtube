@@ -27,21 +27,6 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.usersService.findById(id);
-  }
-
-  @Get('/email/:email')
-  findByEmail(@Param('email') email: string) {
-    return this.usersService.findByEmail(email);
-  }
-
-  @Get('/name/:name')
-  findBySlug(@Param('name') name: string) {
-    return this.usersService.findByName(name);
-  }
-
   @Auth()
   @Get('/history')
   async getUserHistory(@Req() req) {
@@ -56,6 +41,29 @@ export class UsersController {
     const userId = req?.user?.sub;
     if (!userId) throw new UnauthorizedException();
     return this.usersService.getUserSubscribesVideos(userId);
+  }
+
+  @Auth()
+  @Get('/liked')
+  async getUserLikedVideos(@Req() req) {
+    const userId = req?.user?.sub;
+    if (!userId) throw new UnauthorizedException();
+    return this.usersService.getUserLikedVideos(userId);
+  }
+
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.usersService.findById(id);
+  }
+
+  @Get('/email/:email')
+  findByEmail(@Param('email') email: string) {
+    return this.usersService.findByEmail(email);
+  }
+
+  @Get('/name/:name')
+  findBySlug(@Param('name') name: string) {
+    return this.usersService.findByName(name);
   }
 
   @Auth({ mustHaveAccess: true })

@@ -1,4 +1,5 @@
 import { Video } from "@/entities/video/model/video";
+import { VideoWithRelations } from "@/entities/video/model/video-with-relations";
 import { authInstance, publicInstance } from "@/shared/api/axios";
 import { ROUTES } from "@/shared/api/routes";
 
@@ -39,8 +40,9 @@ export type UpdateUserResponse = UserWithRelations;
 
 export type FindOneUserResponse = UserWithRelations;
 
-export type GetUserHistoryResponse = Video[];
-export type GetUserSubscribesVideosResponse = Video[];
+export type GetUserHistoryResponse = VideoWithRelations[];
+export type GetUserSubscribesVideosResponse = VideoWithRelations[];
+export type GetUserLikedVideosResponse = VideoWithRelations[];
 
 export interface BanUserDto {
   isBanned: boolean;
@@ -139,14 +141,21 @@ export class UsersApi {
 
   static async getUserHistory() {
     const res = await authInstance.get<GetUserHistoryResponse>(
-      ROUTES.users.getUserSubscribesVideos.path,
+      ROUTES.users.getUserHistory.path,
     );
     return res.data;
   }
 
   static async getUserSubscribesVideos() {
     const res = await authInstance.get<GetUserSubscribesVideosResponse>(
-      ROUTES.users.getUserHistory.path,
+      ROUTES.users.getUserSubscribesVideos.path,
+    );
+    return res.data;
+  }
+
+  static async getUserLikedVideos() {
+    const res = await authInstance.get<GetUserLikedVideosResponse>(
+      ROUTES.users.getUserLikedVideos.path,
     );
     return res.data;
   }

@@ -1,7 +1,16 @@
-import StudioHeader from "@/layouts/studio-layout/ui/studio-header/studio-header";
-import StudioSidebar from "@/layouts/studio-layout/ui/studio-sidebar/studio-sidebar";
-import { HEADER_Z_INDEX } from "@/shared/lib/constants";
-import Main from "@/shared/ui/main";
+import StudioHeader from "@/layouts/studio-layout/ui/studio-header/studio-header"
+import StudioSidebar from "@/layouts/studio-layout/ui/studio-sidebar/studio-sidebar"
+import { HEADER_Z_INDEX } from "@/shared/lib/constants"
+import Main from "@/shared/ui/main"
+
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const StudioLayout = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -39,7 +39,7 @@ export default async function ChannelHomePage({
   return (
     <div>
       {!channel?.videos?.length && (
-        <p className="text-lg">There are no videos!</p>
+        <p className="text-lg">There are no video!</p>
       )}
       {!!channel?.videos.length && (
         <ChannelVideoSlider videos={channel.videos} />

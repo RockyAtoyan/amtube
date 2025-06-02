@@ -56,7 +56,7 @@ export const SIDEBAR_DATA: ISidebarData = {
       icon: Clock,
     },
     {
-      label: "Likes videos",
+      label: "Liked videos",
       href: PublicRoutes.LIKES,
       icon: Heart,
     },
