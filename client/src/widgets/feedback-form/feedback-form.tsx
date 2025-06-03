@@ -13,7 +13,6 @@ const FeedbackForm = () => {
   const [state, formAction, pending] = useActionState(handleSubmit, null);
 
   async function handleSubmit(state: any, data: any) {
-    console.log(data.get("message"));
     await new Promise<void>((res) => {
       setTimeout(() => res(), 2000);
     });

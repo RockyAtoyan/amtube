@@ -126,6 +126,7 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
 
       setStep(1);
       handleReset();
+      toast.success("Video uploaded successfully!");
     } catch (error) {
       toast.error("An error occurred during uploading thumbnail. Try again!");
     }

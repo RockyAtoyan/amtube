@@ -10,6 +10,7 @@ interface Props {
   editPlaylistId?: string;
   fromPlaylistId?: string;
   isInStudio?: boolean;
+  isInPlaylistList?: boolean;
 }
 
 const VideoRowSheet: FC<Props> = ({
@@ -17,6 +18,7 @@ const VideoRowSheet: FC<Props> = ({
   editPlaylistId,
   fromPlaylistId,
   isInStudio,
+  isInPlaylistList,
 }) => {
   return (
     <div className="flex flex-col gap-8">
@@ -27,6 +29,7 @@ const VideoRowSheet: FC<Props> = ({
           fromPlaylistId={fromPlaylistId}
           video={video}
           isInStudio={isInStudio}
+          isInPlaylistList={isInPlaylistList}
         />
       ))}
     </div>

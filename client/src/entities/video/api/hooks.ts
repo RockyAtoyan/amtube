@@ -9,7 +9,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { UpdateVideoDto, VideosApi } from "./api";
+import { ToggleLikeVideoDto, UpdateVideoDto, VideosApi } from "./api";
 
 interface ProccessVideoDto {
   file: File;
@@ -129,17 +129,38 @@ export const useGetVideo = (id: string) => {
   return { video, ...rest };
 };
 
-export const useFindSimilarVideos = (
-  id: string,
-  page: number,
-  limit?: number,
-) => {
-  const { data: similarVideos, ...rest } = useQuery({
-    queryKey: ["similar-videos", id, page, limit],
-    queryFn: () => VideosApi.findSimilar(id, page, limit),
+export const useGetVideoByPublicId = (publicId: string) => {
+  const { data: video, ...rest } = useQuery({
+    queryKey: ["video", publicId],
+    queryFn: () => VideosApi.findByPublicId(publicId),
   });
 
-  return { similarVideos, ...rest };
+  return { video, ...rest };
+};
+
+export const useFindSimilarVideos = (id: string) => {
+  const { ref, inView } = useInView();
+  const { data, ...rest } = useInfiniteQuery({
+    queryKey: ["similar-videos", id],
+    queryFn: ({ pageParam }) => VideosApi.findSimilar(id, pageParam, 5),
+    getNextPageParam: (lastPage, allPages) => {
+      return !lastPage.hasMore ? null : allPages.length;
+    },
+    initialPageParam: 0,
+  });
+
+  useEffect(() => {
+    if (inView && rest.hasNextPage) {
+      rest.fetchNextPage();
+    }
+  }, [inView]);
+
+  return {
+    similarVideosPages: data?.pages || [],
+    flagRef: ref,
+    loading: rest.status === "pending",
+    ...rest,
+  };
 };
 
 export const useUpdateVideo = () => {
@@ -164,6 +185,25 @@ export const useUpdateVideo = () => {
   });
 
   return { updateVideo, ...rest };
+};
+
+export const useToggleLike = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: toggleLikeVideo, ...rest } = useMutation({
+    mutationFn: (payload: { id: string; dto: ToggleLikeVideoDto }) =>
+      VideosApi.toggleLike(payload.id, payload.dto),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["video", data.id] });
+      queryClient.invalidateQueries({ queryKey: ["video", data.publicId] });
+      queryClient.invalidateQueries({ queryKey: ["user-liked-videos"] });
+    },
+  });
+
+  return { toggleLikeVideo, ...rest };
 };
 
 export const useDeleteVideo = () => {

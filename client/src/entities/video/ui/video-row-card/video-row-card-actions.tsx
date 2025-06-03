@@ -178,50 +178,52 @@ const VideoRowCardActions: FC<Props> = ({
               <div className="flex flex-col gap-3">
                 {!!user?.playlists?.length ? (
                   <div className="flex flex-col gap-3 items-start max-h-[11.25rem] overflow-auto">
-                    {user.playlists.map((playlist) => {
-                      const isIn = !!video?.playlists?.find(
-                        (pl) => pl.id === playlist.id,
-                      );
-                      return (
-                        <Button
-                          variant="link"
-                          key={playlist.id}
-                          onClick={() => {
-                            toggleVideoToPlaylist(
-                              {
-                                id: playlist.id,
-                                dto: {
-                                  isAdded: isIn,
-                                  playlistId: playlist.id,
-                                  videoId: video.id,
+                    {user.playlists
+                      .filter((playlist) => !playlist?.channelId)
+                      .map((playlist) => {
+                        const isIn = !!video?.playlists?.find(
+                          (pl) => pl.id === playlist.id,
+                        );
+                        return (
+                          <Button
+                            variant="link"
+                            key={playlist.id}
+                            onClick={() => {
+                              toggleVideoToPlaylist(
+                                {
+                                  id: playlist.id,
+                                  dto: {
+                                    isAdded: isIn,
+                                    playlistId: playlist.id,
+                                    videoId: video.id,
+                                  },
                                 },
-                              },
-                              {
-                                onSuccess(data, variables, context) {
-                                  toast.success(
-                                    !isIn
-                                      ? `Added to playlist "${data.title}"!`
-                                      : `Removed from playlist "${data.title}"!`,
-                                  );
+                                {
+                                  onSuccess(data, variables, context) {
+                                    toast.success(
+                                      !isIn
+                                        ? `Added to playlist "${data.title}"!`
+                                        : `Removed from playlist "${data.title}"!`,
+                                    );
+                                  },
                                 },
-                              },
-                            );
-                          }}
-                        >
-                          <span
-                            className={cn(
-                              "flex flex-shrink-0 items-center justify-center mr-3 w-6 h-6 border border-primary rounded text-background",
-                              isIn && "border-accent bg-accent",
-                            )}
+                              );
+                            }}
                           >
-                            {isIn && <Check />}
-                          </span>
-                          <span className="line-clamp-1 max-w-[10rem]">
-                            {playlist.title}
-                          </span>
-                        </Button>
-                      );
-                    })}
+                            <span
+                              className={cn(
+                                "flex flex-shrink-0 items-center justify-center mr-3 w-6 h-6 border border-primary rounded text-background",
+                                isIn && "border-accent bg-accent",
+                              )}
+                            >
+                              {isIn && <Check />}
+                            </span>
+                            <span className="line-clamp-1 max-w-[10rem]">
+                              {playlist.title}
+                            </span>
+                          </Button>
+                        );
+                      })}
                   </div>
                 ) : (
                   <p className="my-6"> You do not have any playlists!</p>

@@ -15,6 +15,9 @@ export class CommentsService {
     try {
       const comment = await this.dbService.comment.create({
         data: createCommentDto,
+        include: {
+          video: true
+        }
       });
       return comment;
     } catch (error) {
@@ -114,6 +117,9 @@ export class CommentsService {
       const comment = await this.dbService.comment.update({
         where: { id },
         data: updateCommentDto,
+        include: {
+          video: true
+        }
       });
       return comment;
     } catch (error) {
@@ -125,6 +131,9 @@ export class CommentsService {
     try {
       const comment = await this.dbService.comment.delete({
         where: { id },
+        include: {
+          video: true
+        }
       });
       return comment;
     } catch (error) {

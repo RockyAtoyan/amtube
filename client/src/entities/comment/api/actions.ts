@@ -21,7 +21,7 @@ export async function findAllComments(videoId: string) {
     const res = await CommentsApi.findAll(videoId);
     return res;
   } catch (error) {
-    throw new Error("Failed to fetch comments");
+    return null;
   }
 }
 

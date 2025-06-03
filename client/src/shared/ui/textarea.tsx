@@ -56,7 +56,6 @@ const Textarea: React.FC<TextareaProps> = ({
           props.onFocus?.(event);
         }}
         onBlur={(event) => {
-          console.log("blur");
           setIsFocused(false);
           props.onBlur?.(event);
         }}

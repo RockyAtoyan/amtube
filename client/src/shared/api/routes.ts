@@ -234,8 +234,16 @@ export const ROUTES = {
       path: "/videos/stream-notifications",
       method: "get",
     },
+    toggleLike: {
+      path: "/videos/likes",
+      method: "patch",
+    },
     findAll: {
       path: "/videos",
+      method: "get",
+    },
+    getAllForGenerate: {
+      path: "/videos/all",
       method: "get",
     },
     getTrending: {
@@ -248,6 +256,10 @@ export const ROUTES = {
     },
     findOne: {
       path: "/videos",
+      method: "get",
+    },
+    findOneByPublicId: {
+      path: "/videos/public",
       method: "get",
     },
     findSimilar: {

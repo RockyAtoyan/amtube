@@ -1,17 +1,16 @@
 "use client";
 
-import { ChannelWithRelations } from "@/entities/channel/model/channel-with-relations";
-import { useToggleChannelSubscribe } from "@/entities/user/api/hooks";
-import { cn, formatNumber, getChannelLogoLetters } from "@/shared/lib";
-import { useAuthStore } from "@/shared/store/auth.store";
-import { Button } from "@/shared/ui/button";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { ChannelWithRelations } from "@/entities/channel/model/channel-with-relations"
+import { cn, formatNumber, getChannelLogoLetters } from "@/shared/lib"
+import { useToggleFollowChannel } from "@/shared/lib/hooks/useToggleFollowChannel"
+import { useAuthStore } from "@/shared/store/auth.store"
+import { Button } from "@/shared/ui/button"
+import { Skeleton } from "@/shared/ui/skeleton"
 
-import { FC } from "react";
-import toast from "react-hot-toast";
+import { FC } from "react"
 
-import dynamic from "next/dynamic";
-import Image from "next/image";
+import dynamic from "next/dynamic"
+import Image from "next/image"
 
 const ChannelHeaderDescription = dynamic(
   () => import("./channel-header-description"),
@@ -27,39 +26,8 @@ interface Props {
 
 const ChannelHeaderInfo: FC<Props> = ({ channel }) => {
   const { user, isPending } = useAuthStore();
-
-  const { toggleChannelSubscribe, isPending: isFollowPending } =
-    useToggleChannelSubscribe();
-
-  const isSubscribed = !!user?.subscribes?.some((ch) => ch.id === channel.id);
-
-  const toggleFollow = () => {
-    if (isPending) return;
-    if (!user) {
-      toast.error("You gave to sign in!");
-      return;
-    }
-    if (user?.channel?.id === channel.id) {
-      toast.error("You can not subscribe to your own channel!");
-      return;
-    }
-    toggleChannelSubscribe(
-      {
-        channelId: channel.id,
-        isSubscribed,
-        userId: user.id,
-      },
-      {
-        onSuccess(data, variables, context) {
-          toast.success(
-            !isSubscribed
-              ? `You subscribed on "${channel.title}"!`
-              : `You unsubscribed from "${channel.title}"!`,
-          );
-        },
-      },
-    );
-  };
+  const { toggleFollow, isFollowPending, isSubscribed } =
+    useToggleFollowChannel(channel);
 
   return (
     <div className="flex items-center gap-5">

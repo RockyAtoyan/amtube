@@ -1,4 +1,5 @@
 import { Channel } from "@/entities/channel/model/channel";
+import { CommentWithRelations } from "@/entities/comment/model/comment-with-relations";
 import { Playlist } from "@/entities/playlist/model/playlist";
 import { Tag } from "@/entities/tag/model/tag";
 import { History } from "@/entities/user/model/history";
@@ -13,7 +14,7 @@ export interface VideoWithRelations extends Video {
   views: History[];
   likes: User[];
   dislikes: User[];
-  comments: Comment[];
+  comments: CommentWithRelations[];
   resolutions: Resolution[];
   tags: Tag[];
 }

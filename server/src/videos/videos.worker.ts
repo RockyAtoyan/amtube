@@ -38,8 +38,6 @@ export class VideosWorker extends WorkerHost {
 
     if (!userId) throw new BadRequestException();
 
-    const outputPath = join(outputDir, 'playlist.m3u8');
-
     ensureDirSync(outputDir);
 
     const fileBuffer = job.data.videoFile.buffer;
@@ -53,6 +51,7 @@ export class VideosWorker extends WorkerHost {
           rendition.resolution[0] <= originalResolution.width ||
           rendition.resolution[1] <= originalResolution.height,
       );
+
       if (
         validRenditions.length === 0 ||
         !validRenditions.some(
@@ -69,160 +68,158 @@ export class VideosWorker extends WorkerHost {
         });
       }
 
-      return new Promise((resolve, reject) => {
-        const readableStream = new Readable();
-        readableStream.push(Buffer.from(fileBuffer));
-        readableStream.push(null);
+      // Создаем скриншоты
+      const screenshotTimes = [1, 5, 10];
+      const screenshotPromises = screenshotTimes.map((time) => {
+        return new Promise<string | null>((resolveScreenshot) => {
+          const screenshotStream = new Readable();
+          screenshotStream.push(Buffer.from(fileBuffer));
+          screenshotStream.push(null);
 
-        const command = ffmpeg(readableStream)
-          .outputOptions([
-            '-f hls',
-            '-hls_time 10',
-            '-hls_list_size 0',
-            '-hls_segment_type mpegts',
-            // '-hls_segment_filename',
-            // join(outputDir, 'segment_%03d.ts'),
-            '-master_pl_name playlist.m3u8',
-          ])
-          // .output(outputPath)
-          .videoCodec('libx264')
-          .audioCodec('aac');
-
-        let thumbnailFilename = `${videoId}.jpg`;
-        const thumbnailPath = join(thumbnailsDir, thumbnailFilename);
-        const screenshotTimes = [1, 5, 10]; // секунды
-        const screenshotPromises = screenshotTimes.map((time) => {
-          return new Promise<string | null>((resolveScreenshot) => {
-            const screenshotStream = new Readable();
-            screenshotStream.push(Buffer.from(fileBuffer));
-            screenshotStream.push(null);
-
-            ffmpeg(screenshotStream)
-              .screenshot({
-                count: 1,
-                timemarks: [time],
-                filename: `${videoId}.jpg`,
-                folder: thumbnailsDir,
-                size: `${originalResolution.width}x${originalResolution.height}`,
-              })
-              .on('end', () => resolveScreenshot(`${videoId}.jpg`))
-              .on('error', (err) => {
-                resolveScreenshot(null);
-              });
-          });
+          ffmpeg(screenshotStream)
+            .screenshot({
+              count: 1,
+              timemarks: [time],
+              filename: `${videoId}.jpg`,
+              folder: thumbnailsDir,
+              size: `${originalResolution.width}x${originalResolution.height}`,
+            })
+            .on('end', () => resolveScreenshot(`${videoId}.jpg`))
+            .on('error', () => resolveScreenshot(null));
         });
+      });
 
-        validRenditions.forEach((rendition) => {
+      const progresses = new Map<string, number>();
+
+      // Обрабатываем каждое разрешение отдельной командой
+      const encodingPromises = validRenditions.map((rendition) => {
+        return new Promise<void>((resolve, reject) => {
+          const readableStream = new Readable();
+          readableStream.push(Buffer.from(fileBuffer));
+          readableStream.push(null);
+
           const playlistName = `segment_${rendition.quality}.m3u8`;
-          command
-            .addOutput(join(outputDir, playlistName))
-            .size(`${rendition.resolution[0]}x${rendition.resolution[1]}`);
+          const segmentPattern = `segment_${rendition.quality}_%03d.ts`;
+
+          const command = ffmpeg(readableStream)
+            .output(join(outputDir, playlistName))
+            .size(`${rendition.resolution[0]}x${rendition.resolution[1]}`)
+            .outputOptions([
+              '-f hls',
+              '-hls_time 10',
+              '-hls_list_size 0',
+              '-hls_segment_type mpegts',
+              `-hls_segment_filename ${join(outputDir, segmentPattern)}`,
+            ])
+            .videoCodec('libx264')
+            .audioCodec('aac');
+
           if (rendition.videoBitrate)
             command.videoBitrate(rendition.videoBitrate);
           if (rendition.audioBitrate)
             command.audioBitrate(rendition.audioBitrate);
-        });
 
-        let totalDuration = 0;
+          let totalDuration = 0;
 
-        command
-          .on('codecData', (data) => {
-            const [hours, mins, secs] = data.duration
-              .split(':')
-              .map(parseFloat);
-            totalDuration = hours * 3600 + mins * 60 + secs;
-          })
-          .on('progress', (progress) => {
-            let percent = 0;
-
-            if (progress.timemark && totalDuration > 0) {
-              const [hours, mins, secs] = progress.timemark
+          command
+            .on('codecData', (data) => {
+              const [hours, mins, secs] = data.duration
                 .split(':')
                 .map(parseFloat);
-              const currentTime = hours * 3600 + mins * 60 + secs;
-              percent = Math.round((currentTime / totalDuration) * 100);
-            } else if (progress?.percent) {
-              percent = Math.round(progress.percent);
-            }
-            if (!percent) return;
-            this.videosSseService.sendToClient(
-              userId,
-              { videoId, progress: percent },
-              VideosSseEvents.PROGRESS,
-            );
-            job.updateProgress(percent);
-          })
-          .on('end', async () => {
-            const screenshotResults = await Promise.all(screenshotPromises);
-            const successfulScreenshots = screenshotResults.filter(Boolean);
+              totalDuration = hours * 3600 + mins * 60 + secs;
+            })
+            .on('progress', (progress) => {
+              let percent = 0;
 
-            const mainThumbnail = successfulScreenshots[0] || null;
+              if (progress.timemark && totalDuration > 0) {
+                const [hours, mins, secs] = progress.timemark
+                  .split(':')
+                  .map(parseFloat);
+                const currentTime = hours * 3600 + mins * 60 + secs;
+                percent = Math.round((currentTime / totalDuration) * 100);
+              } else if (progress?.percent) {
+                percent = Math.round(progress.percent);
+              }
 
-            const masterPlaylistContent = validRenditions
-              .map((rendition) => {
-                const bandwidth = rendition.videoBitrate
-                  ? parseInt(rendition.videoBitrate) * 1000
-                  : 5000000;
-                return `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},RESOLUTION=${rendition.resolution[0]}x${rendition.resolution[1]}\nsegment_${rendition.quality}.m3u8`;
-              })
-              .join('\n');  
+              if (!percent) return;
 
-            const masterPlaylistPath = join(outputDir, 'playlist.m3u8');
-            writeFileSync(
-              masterPlaylistPath,
-              `#EXTM3U\n${masterPlaylistContent}`,
-              'utf-8',
-            );
-
-            const relativeMasterPlaylistPath = join(
-              relativeOutputDir,
-              'playlist.m3u8',
-            );
-
-            await this.dbService.video.update({
-              where: { id: videoId },
-              data: {
-                thumbnailUrl: mainThumbnail ? "/videos-thumbnails/" + mainThumbnail  : null,
-                videoSrc: relativeMasterPlaylistPath,
-                resolutions: {
-                  connectOrCreate: validRenditions
-                    .filter((rendition) => rendition.quality !== 'original')
-                    .map((rendition) => ({
-                      where: { quality: rendition.quality },
-                      create: {
-                        quality: rendition.quality,
-                        resolution: rendition.resolution,
-                      },
-                    })),
-                },
-              },
-            });
-
-            this.videosSseService.sendToClient(
-              userId,
-              { videoId, success: true },
-              VideosSseEvents.SUCCESS,
-            );
-
-            resolve({
-              masterPlaylist: relativeMasterPlaylistPath,
-              renditions: validRenditions.map((rendition) => ({
-                quality: rendition.quality,
-                playlist: join(outputDir, `segment_${rendition.quality}.m3u8`),
-              })),
-            });
-          })
-          .on('error', async (err) => {
-            console.log(err);
-            await this.dbService.video.deleteMany({ where: { id: videoId } });
-            rmSync(outputDir, { recursive: true, force: true });
-            reject(err);
-          })
-          .run();
+              progresses.set(rendition.quality, percent);
+              const maxProgress = Math.max(...progresses.values());
+              this.videosSseService.sendToClient(
+                userId,
+                { videoId, progress: Math.min(maxProgress, 99) },
+                VideosSseEvents.PROGRESS,
+              );
+              job.updateProgress(percent);
+            })
+            .on('end', () => resolve())
+            .on('error', (err) => reject(err))
+            .run();
+        });
       });
+
+      // Ждем завершения всех обработок
+      await Promise.all(encodingPromises);
+
+      // Создаем мастер-плейлист
+      const masterPlaylistContent = validRenditions
+        .map((rendition) => {
+          const bandwidth = rendition.videoBitrate
+            ? parseInt(rendition.videoBitrate) * 1000
+            : 5000000;
+          return `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},RESOLUTION=${rendition.resolution[0]}x${rendition.resolution[1]}\nsegment_${rendition.quality}.m3u8`;
+        })
+        .join('\n');
+
+      writeFileSync(
+        join(outputDir, 'playlist.m3u8'),
+        `#EXTM3U\n${masterPlaylistContent}`,
+        'utf-8',
+      );
+
+      // Обрабатываем скриншоты
+      const screenshotResults = await Promise.all(screenshotPromises);
+      const mainThumbnail = screenshotResults.filter(Boolean)[0] || null;
+
+      // Обновляем данные в БД
+      await this.dbService.video.update({
+        where: { id: videoId },
+        data: {
+          thumbnailUrl: mainThumbnail
+            ? '/videos-thumbnails/' + mainThumbnail
+            : null,
+          videoSrc: join(relativeOutputDir, 'playlist.m3u8'),
+          resolutions: {
+            connectOrCreate: validRenditions
+              .filter((rendition) => rendition.quality !== 'original')
+              .map((rendition) => ({
+                where: { quality: rendition.quality },
+                create: {
+                  quality: rendition.quality,
+                  resolution: rendition.resolution,
+                },
+              })),
+          },
+        },
+      });
+
+      this.videosSseService.sendToClient(
+        userId,
+        { videoId, success: true },
+        VideosSseEvents.SUCCESS,
+      );
+
+      return {
+        masterPlaylist: join(relativeOutputDir, 'playlist.m3u8'),
+        renditions: validRenditions.map((rendition) => ({
+          quality: rendition.quality,
+          playlist: join(outputDir, `segment_${rendition.quality}.m3u8`),
+        })),
+      };
     } catch (err) {
       rmSync(outputDir, { recursive: true, force: true });
       await this.dbService.video.deleteMany({ where: { id: videoId } });
+      throw err;
     }
   }
 

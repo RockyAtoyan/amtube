@@ -20,7 +20,21 @@ export type FindAllVideoResponse = {
 export type GetTrendingResponse = VideoWithRelations[];
 export type GetExploreResponse = VideoWithRelations[];
 export type FindOneVideoResponse = VideoWithRelations;
-export type FindSimilarVideoResponse = VideoWithRelations[];
+export interface FindSimilarVideoResponse {
+  videos: VideoWithRelations[];
+  totalCount: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+export type GetAllForGenerateResponse = Video[];
+
+export interface ToggleLikeVideoDto {
+  userId: string;
+  videoId: string;
+  isLiked: boolean;
+}
+
+export type ToggleLikeVideoResponse = Video;
 
 export class VideosApi {
   static async processVideoFile(dto: CreateVideoDto) {
@@ -52,6 +66,13 @@ export class VideosApi {
           limit,
         },
       },
+    );
+    return res.data;
+  }
+
+  static async getAllForGenerate() {
+    const res = await publicInstance.get<GetAllForGenerateResponse>(
+      ROUTES.videos.getAllForGenerate.path,
     );
     return res.data;
   }
@@ -88,12 +109,27 @@ export class VideosApi {
     return res.data;
   }
 
+  static async findByPublicId(id: string) {
+    const res = await publicInstance.get<FindOneVideoResponse>(
+      ROUTES.videos.findOneByPublicId.path + "/" + id,
+    );
+    return res.data;
+  }
+
   static async findSimilar(id: string, page: number, limit?: number) {
     const res = await publicInstance.get<FindSimilarVideoResponse>(
-      ROUTES.videos.findSimilar.path,
+      ROUTES.videos.findSimilar.path + "/" + id,
       {
-        params: { id, page, limit },
+        params: { page, limit },
       },
+    );
+    return res.data;
+  }
+
+  static async toggleLike(id: string, dto: ToggleLikeVideoDto) {
+    const res = await authInstance.patch<ToggleLikeVideoResponse>(
+      ROUTES.videos.toggleLike.path + "/" + id,
+      dto,
     );
     return res.data;
   }

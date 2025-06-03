@@ -14,18 +14,18 @@ import {
   UnauthorizedException,
   UploadedFile,
   UseInterceptors,
-} from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
-import { FileInterceptor } from '@nestjs/platform-express'
-import { type Response } from 'express'
-import { Observable } from 'rxjs'
-import { ACCESS_TOKEN_COOKIE_NAME } from 'src/auth/auth.config'
-import { Auth } from 'src/auth/decorators/auth.decorator'
-import { CreateVideoDto } from './dto/create-video.dto'
-import { UpdateVideoDto } from './dto/update-video.dto'
-import { VideosService } from './videos.service'
-import { ClientEvent, VideosSseService } from './videos.sse'
-import { type VideoFilter, VideoFilterEnum } from './videos.types'
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { type Response } from 'express';
+import { Observable } from 'rxjs';
+import { ACCESS_TOKEN_COOKIE_NAME } from 'src/auth/auth.config';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { CreateVideoDto } from './dto/create-video.dto';
+import { UpdateVideoDto } from './dto/update-video.dto';
+import { VideosService } from './videos.service';
+import { ClientEvent, VideosSseService } from './videos.sse';
+import { type VideoFilter, VideoFilterEnum, VideoToggleLikeDto } from './videos.types';
 
 @Controller('videos')
 export class VideosController {
@@ -68,19 +68,24 @@ export class VideosController {
   }
 
   @Get()
-  findAll(
+  findAllWithPagination(
     @Query('searchTerm') searchTerm,
     @Query('filter') filter: VideoFilter = VideoFilterEnum.POPULAR,
     @Query('page') page = '0',
     @Query('limit') limit = '10',
   ) {
     if (isNaN(+page)) throw new NotFoundException();
-    return this.videosService.findAll(
+    return this.videosService.findAllWithPagination(
       searchTerm,
       filter,
       +page,
       isNaN(+limit) ? 10 : +limit,
     );
+  }
+
+  @Get('/all')
+  findAll() {
+    return this.videosService.findAll();
   }
 
   @Get('/trending')
@@ -113,6 +118,11 @@ export class VideosController {
     return this.videosService.findOne(id);
   }
 
+  @Get('/public/:publicId')
+  findByPublicId(@Param('publicId') publicId) {
+    return this.videosService.findByPublicId(publicId);
+  }
+
   @Get('similar/:id')
   getSimilarVideos(
     @Param('id') videoId: string,
@@ -120,6 +130,12 @@ export class VideosController {
     @Query('limit') limit: number = 10,
   ) {
     return this.videosService.getSimilarVideos(videoId, page, limit);
+  }
+
+  @Auth({ mustHaveAccess: true })
+  @Patch('/likes/:id')
+  toggleLike(@Param('id') id: string, @Body() dto: VideoToggleLikeDto) {
+    return this.videosService.toggleLike(dto.videoId, dto.userId, dto.isLiked);
   }
 
   @Auth()

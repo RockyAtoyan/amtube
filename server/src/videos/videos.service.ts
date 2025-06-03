@@ -59,7 +59,7 @@ export class VideosService {
     }
   }
 
-  async findAll(
+  async findAllWithPagination(
     searchTerm: string,
     filter: VideoFilter,
     page: number,
@@ -123,6 +123,14 @@ export class VideosService {
           throw 'error';
           break;
       }
+    } catch (error) {
+      throw new NotFoundException();
+    }
+  }
+
+  async findAll() {
+    try {
+      return this.dbService.video.findMany();
     } catch (error) {
       throw new NotFoundException();
     }
@@ -263,7 +271,39 @@ export class VideosService {
       });
       return video;
     } catch (error) {
-      console.log(error);
+      throw new NotFoundException();
+    }
+  }
+
+  async findByPublicId(publicId: string) {
+    try {
+      const video = await this.dbService.video.findUnique({
+        where: { publicId },
+        include: {
+          channel: {
+            include: {
+              subscribers: true,
+            },
+          },
+          comments: {
+            include: {
+              likes: true,
+              dislikes: true,
+              answers: {
+                include: { likes: true, dislikes: true, to: true, user: true },
+              },
+              user: true,
+            },
+          },
+          likes: true,
+          dislikes: true,
+          views: true,
+          resolutions: true,
+          tags: true,
+        },
+      });
+      return video;
+    } catch (error) {
       throw new NotFoundException();
     }
   }
@@ -320,7 +360,7 @@ export class VideosService {
             { createdAt: 'desc' },
           ],
           skip: page * limit,
-          take: limit,
+          take: +limit,
         }),
         this.dbService.video.count({
           where: {
@@ -350,7 +390,42 @@ export class VideosService {
         hasMore: (page + 1) * limit < totalCount,
       };
     } catch (error) {
+      console.log(error);
       throw new NotFoundException();
+    }
+  }
+
+  async toggleLike(videoId: string, userId: string, isLiked: boolean) {
+    try {
+      if (isLiked) {
+        const video = await this.dbService.video.update({
+          where: { id: videoId },
+          data: {
+            dislikes: {
+              disconnect: { id: userId },
+            },
+            likes: {
+              connect: { id: userId },
+            },
+          },
+        });
+        return video;
+      } else {
+        const video = await this.dbService.video.update({
+          where: { id: videoId },
+          data: {
+            likes: {
+              disconnect: { id: userId },
+            },
+            dislikes: {
+              connect: { id: userId },
+            },
+          },
+        });
+        return video;
+      }
+    } catch (error) {
+      throw new BadRequestException();
     }
   }
 

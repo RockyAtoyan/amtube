@@ -18,6 +18,7 @@ interface Props {
   editPlaylistId?: string;
   fromPlaylistId?: string;
   isInStudio?: boolean;
+  isInPlaylistList?: boolean;
 }
 
 const VideoRowCard: FC<Props> = ({
@@ -25,6 +26,7 @@ const VideoRowCard: FC<Props> = ({
   editPlaylistId,
   fromPlaylistId,
   isInStudio,
+  isInPlaylistList,
 }) => {
   return (
     <div className="w-full rounded-lg overflow-hidden flex gap-3 relative">
@@ -70,13 +72,15 @@ const VideoRowCard: FC<Props> = ({
           <span title="date">{formatDateRelative(video.updatedAt)}</span>
         </div>
       </div>
-      <div className="absolute top-0 right-0">
-        <VideoRowCardActions
-          editPlaylistId={editPlaylistId}
-          isInStudio={isInStudio}
-          video={video}
-        />
-      </div>
+      {!isInPlaylistList && (
+        <div className="absolute top-0 right-0">
+          <VideoRowCardActions
+            editPlaylistId={editPlaylistId}
+            isInStudio={isInStudio}
+            video={video}
+          />
+        </div>
+      )}
     </div>
   );
 };

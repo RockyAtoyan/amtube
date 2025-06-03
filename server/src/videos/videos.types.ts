@@ -15,3 +15,10 @@ export enum VideoFilterEnum {
 }
 
 export type VideoFilter = VideoFilterEnum;
+
+export interface VideoToggleLikeDto {
+  userId: string;
+  videoId: string;
+  isLiked: boolean;
+}
+

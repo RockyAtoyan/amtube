@@ -25,6 +25,15 @@ export async function findAllVideos(page: string, limit: string) {
   }
 }
 
+export async function getAllVideosForGenerate() {
+  try {
+    const res = await VideosApi.getAllForGenerate();
+    return res;
+  } catch (error) {
+    return null;
+  }
+}
+
 export async function getTrendingVideos(page: string, limit: string) {
   try {
     const res = await VideosApi.getTrending(Number(page), Number(limit));
@@ -49,6 +58,15 @@ export async function findVideoById(id: string) {
     return res;
   } catch (error) {
     throw new Error("Failed to fetch video");
+  }
+}
+
+export async function findVideoByPublicId(publicId: string) {
+  try {
+    const res = await VideosApi.findByPublicId(publicId);
+    return res;
+  } catch (error) {
+    return null;
   }
 }
 

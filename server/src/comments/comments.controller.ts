@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CommentsService } from './comments.service';
@@ -51,7 +52,7 @@ export class CommentsController {
 
   @Auth({ mustHaveAccess: true })
   @Delete(':id')
-  remove(@Param('id') id: string, @Param('userId') userId: string) {
+  remove(@Param('id') id: string, @Query('userId') userId: string) {
     return this.commentsService.remove(id);
   }
 }

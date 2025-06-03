@@ -7,11 +7,15 @@ import { FC } from "react";
 
 interface Props {
   videos: VideoWithRelations[];
+  cols?: number;
 }
 
-const VideoSheet: FC<Props> = ({ videos }) => {
+const VideoSheet: FC<Props> = ({ videos, cols = 4 }) => {
   return (
-    <div className="grid grid-cols-4 gap-8">
+    <div
+      className="grid gap-8"
+      style={{ gridTemplateColumns: "1fr ".repeat(cols) }}
+    >
       {videos.map((video) => (
         <VideoCard key={video.publicId} video={video} />
       ))}

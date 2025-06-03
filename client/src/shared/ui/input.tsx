@@ -25,7 +25,13 @@ export const FileInput: React.FC<FileInputProps> = ({
   return (
     <label className="cursor-pointer">
       <input hidden type="file" onChange={handleFileChange} {...props} />
-      <Button size="lg" variant={"outline"} type="button" asChild className={cn(className)}>
+      <Button
+        size="lg"
+        variant={"outline"}
+        type="button"
+        asChild
+        className={cn(className)}
+      >
         <span>{props.placeholder || "Input file"}</span>
       </Button>
     </label>

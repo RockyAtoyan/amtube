@@ -67,9 +67,9 @@ export class CommentsApi {
     return res.data;
   }
 
-  static async delete(id: string) {
+  static async delete(id: string, authId: string) {
     const res = await authInstance.delete<UpdateCommentResponse>(
-      ROUTES.comments.delete.path + "/" + id,
+      ROUTES.comments.delete.path + "/" + id + "?userId=" + authId,
     );
     return res.data;
   }
