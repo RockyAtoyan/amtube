@@ -31,10 +31,7 @@ const PublicHeader = () => {
       }}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
-          <SearchIcon className="text-primary/60" size={20} />
-          <SearchInput />
-        </div>
+        <SearchInput />
         <div className="flex items-center gap-5">
           <PublicHeaderActions />
           {user ? (

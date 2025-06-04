@@ -11,7 +11,9 @@ export interface CreateNotificationDto {
 }
 export interface CreateNotificationResponse extends Notification {}
 
-export interface UpdateNotificationDto extends Partial<CreateNotificationDto> {}
+export interface UpdateNotificationDto extends Partial<CreateNotificationDto> {
+  isSeen?: boolean;
+}
 export type UpdateNotificationResponse = Notification;
 
 export type FindAllNotificationResponse = NotificationWithRelations[];

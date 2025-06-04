@@ -1,5 +1,6 @@
 import { authInstance, publicInstance } from "@/shared/api/axios";
 import { ROUTES } from "@/shared/api/routes";
+import { SearchVideoFilter } from "@/shared/lib/types/videos.types";
 
 import { Video } from "../model/video";
 import { VideoWithRelations } from "../model/video-with-relations";
@@ -53,7 +54,7 @@ export class VideosApi {
   static async findAll(
     page: number,
     searchTerm?: string,
-    filter?: "popular" | "latest" | "newest" | "likes",
+    filter?: SearchVideoFilter,
     limit?: number,
   ) {
     const res = await publicInstance.get<FindAllVideoResponse>(
@@ -134,9 +135,9 @@ export class VideosApi {
     return res.data;
   }
 
-  static async update(id: string, dto: UpdateVideoDto) {
+  static async update(id: string, dto: UpdateVideoDto, isUploading = false) {
     const res = await authInstance.patch<UpdateVideoResponse>(
-      ROUTES.videos.update.path + "/" + id,
+      ROUTES.videos.update.path + "/" + id + `?isUploading=${isUploading}`,
       dto,
     );
     return res.data;

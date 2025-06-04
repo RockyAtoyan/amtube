@@ -25,7 +25,11 @@ import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { VideosService } from './videos.service';
 import { ClientEvent, VideosSseService } from './videos.sse';
-import { type VideoFilter, VideoFilterEnum, VideoToggleLikeDto } from './videos.types';
+import {
+  type VideoFilter,
+  VideoFilterEnum,
+  VideoToggleLikeDto,
+} from './videos.types';
 
 @Controller('videos')
 export class VideosController {
@@ -140,8 +144,16 @@ export class VideosController {
 
   @Auth()
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVideoDto: UpdateVideoDto) {
-    return this.videosService.update(id, updateVideoDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateVideoDto: UpdateVideoDto,
+    @Query('isUploading') isUploading = 'false',
+  ) {
+    return this.videosService.update(
+      id,
+      updateVideoDto,
+      isUploading === 'true',
+    );
   }
 
   @Auth()

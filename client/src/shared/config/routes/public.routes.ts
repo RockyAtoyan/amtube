@@ -1,4 +1,5 @@
 import { PlaylistWithRelations } from "@/entities/playlist/model/playlist-with-relations";
+import { SearchVideoFilter } from "@/shared/lib/types/videos.types";
 
 export class PublicRoutes {
   static readonly HOME = "/";
@@ -24,6 +25,26 @@ export class PublicRoutes {
     const videoId = playlist?.videos[0]?.publicId;
     if (!videoId) return this.HOME;
     return this.VIDEO(videoId, playlist.id);
+  }
+
+  static SEARCH_VIDEO(searchTerm: string, filter?: SearchVideoFilter) {
+    return (
+      `/search?searchTerm=${searchTerm}` + (filter ? `&filter=${filter}` : "")
+    );
+  }
+
+  static SEARCH_CHANNELS(searchTerm: string, filter?: SearchVideoFilter) {
+    return (
+      `/search/channels?searchTerm=${searchTerm}` +
+      (filter ? `&filter=${filter}` : "")
+    );
+  }
+
+  static SEARCH_PLAYLISTS(searchTerm: string, filter?: SearchVideoFilter) {
+    return (
+      `/search/playlists?searchTerm=${searchTerm}` +
+      (filter ? `&filter=${filter}` : "")
+    );
   }
 
   static readonly SIGN_IN = "/sign-in";

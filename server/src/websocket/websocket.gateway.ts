@@ -1,4 +1,6 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
@@ -22,18 +24,20 @@ export class WebsocketGateway implements OnGatewayDisconnect {
 
   constructor(private notificationsService: NotificationsService) {}
 
-  @SubscribeMessage('connection')
-  handleConnection(client: Socket, payload: { userId: string }) {
+  @SubscribeMessage('joining')
+  handleJoining(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { userId: string },
+  ) {
     try {
       const userId = payload?.userId;
       if (!userId) client.disconnect();
       this.userSockets.set(payload.userId, client.id);
       const room = this.getRoomName(userId);
       client.join(room);
-      this.server
-        .to(room)
-        .emit('connection', { type: 'connection', success: true });
+      this.server.to(room).emit('joining', { type: 'joining', success: true });
     } catch (error) {
+      console.log(error);
       client.disconnect();
     }
   }

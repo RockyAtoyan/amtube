@@ -1,6 +1,13 @@
+import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useInView } from "react-intersection-observer";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { Playlist } from "../model/playlist";
 import {
@@ -10,7 +17,7 @@ import {
   UpdatePlaylistDto,
 } from "./api";
 
-export const useGetPlaylists = (
+export const useGetPlaylistsByPage = (
   page: number,
   searchTerm?: string,
   filter?: "popular" | "latest" | "newest",
@@ -22,6 +29,46 @@ export const useGetPlaylists = (
   });
 
   return { playlists, ...rest };
+};
+
+export const useGetPlaylists = (
+  searchTerm?: string,
+  filter?: "popular" | "latest" | "newest",
+) => {
+  const { ref, inView } = useInView();
+  const { data, ...rest } = useInfiniteQuery({
+    queryKey: ["playlists", searchTerm],
+    queryFn: ({ pageParam }) =>
+      PlaylistsApi.findAll(pageParam, searchTerm, filter, 10),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.totalCount / 10 <= allPages.length
+        ? null
+        : allPages.length;
+    },
+    initialPageParam: 0,
+    select(data) {
+      return {
+        pages: data.pages.map((page) => ({
+          ...page,
+          playlists: page.playlists.filter(
+            (playlist) => playlist.title !== "Watch later",
+          ),
+        })),
+      };
+    },
+  });
+  useEffect(() => {
+    if (inView && rest.hasNextPage) {
+      rest.fetchNextPage();
+    }
+  }, [inView]);
+
+  return {
+    playlistsPages: data?.pages || [],
+    flagRef: ref,
+    loading: rest.status === "pending",
+    ...rest,
+  };
 };
 
 export const useGetPlaylist = (id: string) => {
@@ -54,9 +101,17 @@ export const useCreatePlaylist = (onSuccess?: Function) => {
 };
 
 export const useToggleSavePlaylist = () => {
+  const queryClient = useQueryClient();
+
   const { mutate: toggleSavePlaylist, ...rest } = useMutation({
     mutationFn: (payload: { id: string; dto: ToggleSavePlaylistDto }) =>
       PlaylistsApi.toggleSavePlaylist(payload.id, payload.dto),
+    onSuccess(data, variables, context) {
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["playlist", data.id] });
+    },
   });
 
   return { toggleSavePlaylist, ...rest };

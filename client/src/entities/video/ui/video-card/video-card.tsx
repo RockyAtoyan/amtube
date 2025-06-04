@@ -80,7 +80,7 @@ const VideoCard: FC<Props> = ({ video }) => {
           <User size={16} className="text-accent" />
           {formatNumber(video.views.length)} views
         </span>
-        <span title="date">{formatDateRelative(video.updatedAt)}</span>
+        <span title="date">{formatDateRelative(video.createdAt)}</span>
       </div>
       <Link
         href={PublicRoutes.VIDEO(video.publicId)}

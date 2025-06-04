@@ -17,7 +17,7 @@ import Badge from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 
-import { FC, useEffect } from "react";
+import { FC, useEffect, useRef } from "react";
 
 import { Bell, ThumbsUp } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -49,9 +49,20 @@ const VideoInfo: FC<VideoInfoProps> = ({ video }) => {
 
   const formattedDate = formatDateRelative(createdAt);
 
+  const initialized = useRef(false);
+
   useEffect(() => {
-    if (user) {
-      addVideoToHistory({ userId: user.id, videoId: video.id });
+    if (!initialized.current) {
+      if (user) {
+        addVideoToHistory(
+          { userId: user.id, videoId: video.id },
+          {
+            onSuccess() {
+              initialized.current = true;
+            },
+          },
+        );
+      }
     }
   }, [user]);
 

@@ -7,6 +7,7 @@ import { rmSync, writeFileSync } from 'fs';
 import { ensureDirSync } from 'fs-extra';
 import { join } from 'path';
 import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { Readable } from 'stream';
 import { DbService } from './../db/db.service';
 import { DELETE_VIDEO_JOB_NAME } from './videos.config';
@@ -21,6 +22,7 @@ export class VideosWorker extends WorkerHost {
   constructor(
     private dbService: DbService,
     private videosSseService: VideosSseService,
+    private socketService: WebsocketGateway,
   ) {
     super();
   }
@@ -227,7 +229,7 @@ export class VideosWorker extends WorkerHost {
   onActive(job: Job) {}
 
   @OnWorkerEvent('completed')
-  onComplete(job: Job) {
+  async onComplete(job: Job) {
     const { userId, videoId } = job.data;
     this.videosSseService.sendToClient(
       userId,

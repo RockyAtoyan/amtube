@@ -24,14 +24,16 @@ const RowNav: FC<Props> = ({ items }) => {
   return (
     <div className="flex items-center gap-6 border-b border-primary/20">
       {items.map((item, index) => {
+        const itemPathname = item.pathname.split("?")[0];
+
         return (
           <Button
             key={index}
             className={cn(
               "bg-transparent hover:bg-transparent border-b-2 border-transparent text-primary/80 rounded-none hover:border-primary/40",
               (item.isHome
-                ? pathname === item.pathname
-                : pathname.includes(item.pathname)) &&
+                ? pathname === itemPathname
+                : pathname.includes(itemPathname)) &&
                 "hover:border-primary border-primary text-primary",
             )}
             asChild

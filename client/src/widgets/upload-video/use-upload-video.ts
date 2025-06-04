@@ -122,6 +122,7 @@ export const useUploadVideo = ({ channelId, setStep }: Props) => {
           tags,
           thumbnailUrl: thumbnailUrl || undefined,
         },
+        isUploading: true,
       });
 
       setStep(1);

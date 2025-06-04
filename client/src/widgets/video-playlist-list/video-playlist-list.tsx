@@ -24,13 +24,13 @@ const VideoPlaylistList: FC<Props> = ({ video, playlist }) => {
 
   return (
     <div>
-      <div className="p-4 rounded-t-lg bg-border">
+      <div className="p-4 rounded-t-lg bg-border/30 dark:bg-border">
         <p className="line-clamp-1 mb-1 text-lg">{playlist.title}</p>
         <span className="text-xs text-primary/60">
           {formatNumber(playlist?.videos?.length || 0)} video
         </span>
       </div>
-      <div className="h-[25rem] pt-2 overflow-auto mb-8 rounded-b-lg border border-border">
+      <div className="max-h-[25rem] pt-2 overflow-auto mb-8 rounded-b-lg border border-border">
         <div className="flex flex-col gap-1">
           {playlist?.videos?.map((v) => {
             return (

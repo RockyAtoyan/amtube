@@ -34,7 +34,7 @@ export type PlayerState = {
   isAutoQuality: boolean;
   buffered: number;
   isQualitySwitching: boolean;
-  isBuffering: boolean; // Новое состояние для буферизации
+  isBuffering: boolean;
 };
 
 type UseVideoPlayerOptions = {
@@ -74,17 +74,15 @@ export const useVideoPlayer = ({
 
   const isManualQualitySelection = useRef(false);
 
-  // Проверка достаточности буфера для аудио и видео
   const hasEnoughBuffer = () => {
     const video = videoRef.current;
     if (!video) return false;
     const bufferedEnd = video.buffered.length
       ? video.buffered.end(video.buffered.length - 1)
       : 0;
-    return bufferedEnd >= video.currentTime + 3; // Минимум 3 секунды буфера
+    return bufferedEnd >= video.currentTime + 3;
   };
 
-  // Общая логика переключения качества
   const handleQualitySwitch = async (level: number, manualChange = true) => {
     if (hlsInstance.current && playerState.isHlsSupported) {
       const auto = manualChange ? level === -1 : playerState.isAutoQuality;
@@ -99,11 +97,10 @@ export const useVideoPlayer = ({
         `Switching to quality level ${level} (${auto ? "auto" : "manual"})`,
       );
 
-      // Полная остановка воспроизведения и очистка буфера
       videoRef.current?.pause();
       hlsInstance.current.stopLoad();
       if (videoRef.current) {
-        videoRef.current.src = ""; // Сбрасываем источник
+        videoRef.current.src = "";
         hlsInstance.current.detachMedia();
         hlsInstance.current.attachMedia(videoRef.current);
       }
@@ -111,7 +108,6 @@ export const useVideoPlayer = ({
       const currentTime = videoRef.current?.currentTime || 0;
       hlsInstance.current.startLoad(currentTime);
 
-      // Ждем достаточной буферизации
       await new Promise((resolve) => setTimeout(resolve, 1500));
       if (hasEnoughBuffer() && playerState.isPlaying) {
         videoRef.current?.play().catch((err) => {
@@ -183,8 +179,8 @@ export const useVideoPlayer = ({
       setPlayerState((prev) => ({
         ...prev,
         isFullscreen: !!document.fullscreenElement,
-      }))
-    }
+      }));
+    };
 
     const handleWaiting = () => {
       setPlayerState((prev) => ({ ...prev, isBuffering: true }));

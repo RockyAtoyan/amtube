@@ -1,3 +1,5 @@
+import { SearchVideoFilter } from "@/shared/lib/types/videos.types";
+
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useInView } from "react-intersection-observer";
@@ -48,10 +50,10 @@ export const useSse = () => {
   return { sseData, ...rest };
 };
 
-export const useGetVideos = (
+export const useGetVideosByPage = (
   page: number,
   searchTerm?: string,
-  filter?: "popular" | "latest" | "newest" | "likes",
+  filter?: SearchVideoFilter,
   limit?: number,
 ) => {
   const { data: videos, ...rest } = useQuery({
@@ -60,6 +62,36 @@ export const useGetVideos = (
   });
 
   return { videos, ...rest };
+};
+
+export const useGetVideos = (
+  searchTerm?: string,
+  filter?: SearchVideoFilter,
+) => {
+  const { ref, inView } = useInView();
+  const { data, ...rest } = useInfiniteQuery({
+    queryKey: ["videos", searchTerm],
+    queryFn: ({ pageParam }) =>
+      VideosApi.findAll(pageParam, searchTerm, filter, 10),
+    getNextPageParam: (lastPage, allPages) => {
+      return Math.ceil(lastPage.totalCount / 10) <= allPages.length
+        ? null
+        : allPages.length;
+    },
+    initialPageParam: 0,
+  });
+  useEffect(() => {
+    if (inView && rest.hasNextPage) {
+      rest.fetchNextPage();
+    }
+  }, [inView]);
+
+  return {
+    videosPages: data?.pages || [],
+    flagRef: ref,
+    loading: rest.status === "pending",
+    ...rest,
+  };
 };
 
 export const useGetTrendingVideosByPage = (page: number, limit?: number) => {
@@ -167,8 +199,11 @@ export const useUpdateVideo = () => {
   const queryClient = useQueryClient();
 
   const { mutate: updateVideo, ...rest } = useMutation({
-    mutationFn: (payload: { id: string; dto: UpdateVideoDto }) =>
-      VideosApi.update(payload.id, payload.dto),
+    mutationFn: (payload: {
+      id: string;
+      dto: UpdateVideoDto;
+      isUploading?: boolean;
+    }) => VideosApi.update(payload.id, payload.dto, payload.isUploading),
     onError: () => {
       toast.error("An error occurred during uploading. Try again!");
     },

@@ -1,17 +1,17 @@
 "use client";
 
-import { useCreateComment, useGetComments } from "@/entities/comment/api/hooks";
-import { CommentWithRelations } from "@/entities/comment/model/comment-with-relations";
-import CommentCard from "@/entities/comment/ui/comment-card";
-import { VideoWithRelations } from "@/entities/video/model/video-with-relations";
-import { formatNumber } from "@/shared/lib";
-import { useAuthStore } from "@/shared/store/auth.store";
-import { Button } from "@/shared/ui/button";
-import Input from "@/shared/ui/input";
-import { Loader } from "@/shared/ui/loader";
+import { useCreateComment, useGetComments } from "@/entities/comment/api/hooks"
+import { CommentWithRelations } from "@/entities/comment/model/comment-with-relations"
+import CommentCard from "@/entities/comment/ui/comment-card"
+import { VideoWithRelations } from "@/entities/video/model/video-with-relations"
+import { formatNumber } from "@/shared/lib"
+import { useAuthStore } from "@/shared/store/auth.store"
+import { Button } from "@/shared/ui/button"
+import Input from "@/shared/ui/input"
+import { Loader } from "@/shared/ui/loader"
 
-import { FC } from "react";
-import toast from "react-hot-toast";
+import { FC } from "react"
+import toast from "react-hot-toast"
 
 interface Props {
   video: VideoWithRelations;
@@ -25,13 +25,13 @@ const VideoComments: FC<Props> = ({ video, comments: initCommets }) => {
 
   const { createComment, isPending: isCreatePending } = useCreateComment();
 
-  const handleCreate = (data: any) => {
-    const text = data.get("text");
+  const handleCreate = (data: FormData) => {
+    const text = data.get("text") as string;
     if (!user) {
       toast.error("You have to sign in!");
       return;
     }
-    if (!text) {
+    if (!text.trim()) {
       toast.error("You have to write comment!");
       return;
     }

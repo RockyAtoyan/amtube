@@ -1,4 +1,3 @@
-import { findVideoIncludeConfig } from './../videos/videos.config';
 import {
   BadRequestException,
   Injectable,
@@ -8,6 +7,7 @@ import { Prisma } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 import { DbService } from './../db/db.service';
 import { MediaService } from './../media/media.service';
+import { findVideoIncludeConfig } from './../videos/videos.config';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 import { type PlaylistFilter, PlaylistFilterEnum } from './playlists.types';
@@ -61,14 +61,20 @@ export class PlaylistsService {
     try {
       const options: Prisma.PlaylistFindManyArgs = {
         where: {
-          title: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
-          description: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+            {
+              description: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+          ],
         },
         include: {
           user: true,
@@ -78,7 +84,24 @@ export class PlaylistsService {
         skip: page * limit,
         take: limit,
       };
-      const count = await this.dbService.playlist.count();
+      const count = await this.dbService.playlist.count({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+            {
+              description: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        },
+      });
       switch (filter) {
         case PlaylistFilterEnum.POPULAR:
           return {

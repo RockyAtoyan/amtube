@@ -17,8 +17,6 @@ const WatchLaterVideos = () => {
   );
   const videos = playlist?.videos;
 
-  console.log(videos?.length);
-
   if (!user && !isPending) {
     return <UnauthorizedForm />;
   }

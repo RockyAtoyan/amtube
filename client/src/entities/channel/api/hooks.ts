@@ -1,8 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 
-import { ChannelsApi, UpdateChannelDto } from "./api"
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
-export const useGetChannels = (
+import { ChannelsApi, UpdateChannelDto } from "./api";
+
+export const useGetChannelsByPage = (
   page: number,
   searchTerm?: string,
   filter?: "popular" | "alphabet" | "alphabet(desc)",
@@ -14,6 +22,36 @@ export const useGetChannels = (
   });
 
   return { channels, ...rest };
+};
+
+export const useGetChannels = (
+  searchTerm?: string,
+  filter?: "popular" | "alphabet" | "alphabet(desc)",
+) => {
+  const { ref, inView } = useInView();
+  const { data, ...rest } = useInfiniteQuery({
+    queryKey: ["videos", searchTerm],
+    queryFn: ({ pageParam }) =>
+      ChannelsApi.findAll(pageParam, searchTerm, filter, 10),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.totalCount / 10 === allPages.length
+        ? null
+        : allPages.length;
+    },
+    initialPageParam: 0,
+  });
+  useEffect(() => {
+    if (inView && rest.hasNextPage) {
+      rest.fetchNextPage();
+    }
+  }, [inView]);
+
+  return {
+    channelsPages: data?.pages || [],
+    flagRef: ref,
+    loading: rest.status === "pending",
+    ...rest,
+  };
 };
 
 export const useGetChannel = (id: string) => {

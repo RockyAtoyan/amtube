@@ -52,9 +52,9 @@ export async function updateComment(id: string, dto: UpdateCommentDto) {
   }
 }
 
-export async function deleteComment(id: string) {
+export async function deleteComment(id: string, authId: string) {
   try {
-    const res = await CommentsApi.delete(id);
+    const res = await CommentsApi.delete(id, authId);
     return res;
   } catch (error) {
     throw new Error("Failed to delete comment");

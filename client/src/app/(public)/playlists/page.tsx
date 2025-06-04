@@ -1,6 +1,7 @@
 import UserPlaylists from "@/widgets/user-playlists/user-playlists";
+import UserSavedPlaylists from "@/widgets/user-saved-playlists/user-saved-playlists";
 
-import { ListVideo } from "lucide-react";
+import { BookMarked, ListVideo } from "lucide-react";
 
 export default function PlaylistsPage() {
   return (
@@ -9,6 +10,10 @@ export default function PlaylistsPage() {
         <ListVideo className="text-accent" size={24} /> Your playlists
       </h2>
       <UserPlaylists isInStudio={false} />
+      <h2 className="text-xl my-8 flex items-center gap-3">
+        <BookMarked className="text-accent" size={24} /> Saved playlists
+      </h2>
+      <UserSavedPlaylists />
     </div>
   );
 }

@@ -1,26 +1,27 @@
-import { InjectQueue } from '@nestjs/bullmq';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { InjectQueue } from '@nestjs/bullmq'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import { createId } from '@paralleldrive/cuid2';
-import { Prisma } from '@prisma/client';
-import { Queue } from 'bullmq';
-import { type Cache } from 'cache-manager';
-import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config';
-import { DbService } from './../db/db.service';
-import { CreateVideoDto } from './dto/create-video.dto';
-import { UpdateVideoDto } from './dto/update-video.dto';
-import { DELETE_VIDEO_JOB_NAME, findVideoIncludeConfig } from './videos.config';
+} from '@nestjs/common'
+import { SchedulerRegistry } from '@nestjs/schedule'
+import { createId } from '@paralleldrive/cuid2'
+import { Prisma } from '@prisma/client'
+import { Queue } from 'bullmq'
+import { type Cache } from 'cache-manager'
+import { VIDEO_QUEUE_NAME } from 'src/configs/bullmq.config'
+import { WebsocketGateway } from 'src/websocket/websocket.gateway'
+import { DbService } from './../db/db.service'
+import { CreateVideoDto } from './dto/create-video.dto'
+import { UpdateVideoDto } from './dto/update-video.dto'
+import { DELETE_VIDEO_JOB_NAME, findVideoIncludeConfig } from './videos.config'
 import {
   type ProcessVideoJobPayload,
   type VideoFilter,
   VideoFilterEnum,
-} from './videos.types';
+} from './videos.types'
 
 @Injectable()
 export class VideosService {
@@ -29,6 +30,7 @@ export class VideosService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private scheduler: SchedulerRegistry,
     private dbService: DbService,
+    private socketService: WebsocketGateway,
   ) {}
 
   async processVideoFile(
@@ -68,20 +70,43 @@ export class VideosService {
     try {
       const options: Prisma.VideoFindManyArgs = {
         where: {
-          title: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
-          description: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+            {
+              description: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+          ],
         },
         include: findVideoIncludeConfig,
         skip: page * limit,
         take: limit,
       };
-      const count = await this.dbService.video.count();
+      const count = await this.dbService.video.count({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+            {
+              description: {
+                contains: searchTerm,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        },
+      });
       switch (filter) {
         case VideoFilterEnum.POPULAR:
           return {
@@ -429,7 +454,11 @@ export class VideosService {
     }
   }
 
-  async update(id: string, updateVideoDto: UpdateVideoDto) {
+  async update(
+    id: string,
+    updateVideoDto: UpdateVideoDto,
+    isUploading?: boolean,
+  ) {
     try {
       const { tags, thumbnailUrl, ...dto } = updateVideoDto;
       const oldVideo = await this.dbService.video.findUnique({
@@ -457,9 +486,22 @@ export class VideosService {
             : {},
         },
         include: {
-          channel: true,
+          channel: {
+            include: {
+              subscribers: true,
+            },
+          },
         },
       });
+      if (isUploading && video?.channel?.subscribers) {
+        await this.socketService.sendNotificationToUsers(
+          video.channel.subscribers.map((sub) => sub.id),
+          {
+            text: `New video on channel "${video.channel.title}"!`,
+            link: `/v/${video.publicId}`,
+          },
+        );
+      }
       return video;
     } catch (error) {
       throw new BadRequestException();

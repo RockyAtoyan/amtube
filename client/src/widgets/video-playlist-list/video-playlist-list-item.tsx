@@ -21,13 +21,13 @@ const VideoPlaylistListItem: FC<Props> = ({ video, playlist, isActive }) => {
     <div
       id={video.publicId}
       className={cn(
-        "w-full rounded-lg overflow-hidden flex gap-3 relative pl-2 py-2",
+        "w-full overflow-hidden flex gap-3 relative pl-2 py-2",
         isActive && "bg-accent-secondary/30",
       )}
     >
       <Link
         href={PublicRoutes.VIDEO(video.publicId, playlist.id)}
-        className="block rounded-lg w-full max-w-[10rem] aspect-video relative bg-secondary flex-shrink-0 dark:bg-black user-select-none"
+        className="block rounded-lg w-full max-w-[8rem] aspect-video relative bg-secondary flex-shrink-0 dark:bg-black user-select-none"
         title={video.title}
       >
         <Image

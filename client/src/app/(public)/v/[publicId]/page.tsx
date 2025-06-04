@@ -17,7 +17,7 @@ export const revalidate = 100;
 
 export async function generateStaticParams() {
   //@ts-ignore
-  const videos = await getAllVideosForGenerate();
+  const videos = (await getAllVideosForGenerate()) || [];
   return videos?.map?.((video) => ({
     publicId: video?.publicId,
   }));

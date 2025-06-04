@@ -13,7 +13,6 @@ import { useSidebarStore } from "@/shared/store/sidebar.store";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 
-import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 
 import StudioHeaderActions from "./studio-header-actions";
@@ -31,10 +30,7 @@ const StudioHeader = () => {
       }}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
-          <SearchIcon className="text-primary/60" size={20} />
-          <SearchInput />
-        </div>
+        <SearchInput />
         <div className="flex items-center gap-5">
           <StudioHeaderActions />
           {user ? (

@@ -34,6 +34,7 @@
     "react-hot-toast": "^2.5.2",
     "react-intersection-observer": "^9.16.0",
     "sanitize-html": "^2.15.0",
+    "socket.io-client": "^4.8.1",
     "swiper": "^11.2.7",
     "tailwind-merge": "^3.1.0",
     "yup": "^1.6.1",

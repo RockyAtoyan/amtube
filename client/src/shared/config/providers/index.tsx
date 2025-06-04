@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { ThemeProvider } from "next-themes";
 
+import NotificationProvider from "./notification.provider";
 import ProfileProvider from "./profile.provider";
 
 const Providers = ({
@@ -47,8 +48,20 @@ const Providers = ({
     <QueryClientProvider client={queryClient}>
       <ThemeProvider themes={["light", "dark"]} defaultTheme="dark">
         <ProfileProvider>
+          <NotificationProvider />
           {children}
-          <Toaster />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                borderRadius: "0.625rem",
+                background: "var(--background)",
+                color: "var(--primary)",
+                border: "1px solid",
+                borderColor: "var(--border)",
+              },
+            }}
+          />
         </ProfileProvider>
       </ThemeProvider>
     </QueryClientProvider>
