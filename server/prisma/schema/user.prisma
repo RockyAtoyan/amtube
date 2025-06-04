@@ -1,0 +1,25 @@
+model User {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  name             String         @unique
+  password         String
+  avatarUrl        String?
+  isActivated      Boolean        @default(false)
+  isBanned         Boolean        @default(false)
+  role             Role           @default(USER)
+  channel          Channel?
+  likedVideos      Video[]        @relation(name: "likedVideo")
+  dislikedVideos   Video[]        @relation(name: "dislikedVideo")
+  history          History[]
+  playlists        Playlist[]
+  savedPlaylists   Playlist[]     @relation(name: "playlistSavings")
+  subscribes       Channel[]      @relation(name: "channelSubscribers")
+  comments         Comment[]
+  sendedAnswers    Answer[]
+  recievedAnswers  Answer[]       @relation(name: "reciever")
+  likedComments    Comment[]      @relation(name: "likedComments")
+  dislikedComments Comment[]      @relation(name: "dislikedComments")
+  likedAnswers     Answer[]       @relation(name: "likedAnswers")
+  dislikedAnswers  Answer[]       @relation(name: "dislikedAnswers")
+  notifications    Notification[]
+}

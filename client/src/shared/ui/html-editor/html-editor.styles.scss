@@ -1,0 +1,11 @@
+.tiptap {
+  @apply w-full min-h-50 max-h-96 overflow-auto px-3 py-2 border border-border rounded-md shadow-sm outline-none focus:border-accent-secondary placeholder-transparent;
+
+  p.is-editor-empty:first-child::before {
+    @apply text-primary;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+}

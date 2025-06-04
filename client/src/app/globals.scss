@@ -1,0 +1,39 @@
+@use "tailwindcss";
+@use "swiper/css";
+@use "swiper/css/scrollbar";
+@use "../shared/ui/html-editor/html-editor.styles.scss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root {
+  --primary: #000;
+  --background: #fff;
+  --secondary: #f0f0f0;
+  --accent: #42b883;
+  --accent-secondary: #318f65;
+  --border: #d1d1d1;
+}
+
+[data-theme="dark"] {
+  --primary: #fff;
+  --background: #1a1a1a;
+  --secondary: #232323;
+  --accent-secondary: #318f65;
+  --border: #363636;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-background: var(--background);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-border: var(--border);
+  --color-destructive: var(--color-red-500);
+}
+
+body {
+  background: var(--background);
+  color: var(--primary);
+  font-family: var(--font-inter);
+}

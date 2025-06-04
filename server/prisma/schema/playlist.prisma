@@ -1,0 +1,14 @@
+model Playlist {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  thumbnailUrl String?
+  user         User?    @relation(fields: [userId], references: [id])
+  channel      Channel? @relation(fields: [channelId], references: [id])
+  videos       Video[]
+  savings      User[]   @relation(name: "playlistSavings")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       String?
+  channelId    String?
+}
